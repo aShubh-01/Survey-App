@@ -15,7 +15,6 @@ const runScheduledTasks = async () => {
             });
         }, 60 * 1000)
 
-
     } catch (err) {
         console.error('Unable to run schedule')
     }
