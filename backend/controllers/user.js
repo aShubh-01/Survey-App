@@ -1,4 +1,4 @@
-const { transporter, prisma, jwtSecret } = require('../../config.js');
+const { transporter, prisma, jwtSecret } = require('../config.js');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 

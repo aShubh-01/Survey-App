@@ -1,5 +1,5 @@
 const express = require('express');
-const { sendVerificationCode, verifyCode, signUp } = require('./middlewares/userAuth.js')
+const { sendVerificationCode, verifyCode, signUp } = require('../controllers/user')
 
 const userRouter = express.Router();
 
