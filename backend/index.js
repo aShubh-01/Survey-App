@@ -1,11 +1,11 @@
 const express = require('express');
-const userRouter = require('../routers/userRouter');
-const surveyRouter = require('../routers/surveyRouter')
-const questionRouter = require('../routers/questionRouter');
-const optionRouter = require('../routers/optionRouter');
-const submissionRouter = require('../routers/submissionRouter');
-const runScheduledTasks = require('../schedule');
-const { port } = require('../config')
+const userRouter = require('./routers/userRouter');
+const surveyRouter = require('./routers/surveyRouter')
+const questionRouter = require('./routers/questionRouter');
+const optionRouter = require('./routers/optionRouter');
+const submissionRouter = require('./routers/submissionRouter');
+const runScheduledTasks = require('./schedule');
+const { port } = require('./config')
 
 const mainRouter = express();
 
