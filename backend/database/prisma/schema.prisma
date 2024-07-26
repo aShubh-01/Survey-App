@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  
+}
+
+enum QuestionType {
+  MULTIPLE_SELECT
+  SINGLE_SELECT
+  TEXT
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  surveys Survey[]
+  submissions Submission[]
+}
+
+model Verification {
+  id Int @id @default(autoincrement())
+  email String @unique
+  code String?
+  lastVerifiedAt DateTime @default(now())
+}
+
+model Survey {
+  userId Int
+  users User @relation(fields: [userId], references: [id])
+  id Int @id @default(autoincrement())
+  surveyTitle String
+  description String?
+  isDeleted Boolean @default(false)
+  isPublished Boolean @default(false)
+  isClosed Boolean @default(false)
+  closingDate DateTime?
+  questions Question[]
+  submission Submission[]
+}
+
+model Submission {
+  userId Int
+  users User @relation(fields: [userId], references: [id])
+  isAnonymous Boolean @default(false)
+  surveyId Int
+  survey Survey @relation(fields: [surveyId], references: [id])
+  id Int @id @default(autoincrement())
+  answers Answer[]
+}
+
+model Question {
+  surveyId Int
+  survey Survey @relation(fields: [surveyId], references: [id])
+  id Int @id @default(autoincrement())
+  questionLabel String
+  type QuestionType
+  attempts Int @default(0)
+  isRequired Boolean @default(false)
+  isDeleted Boolean @default(false)
+  options Option[]
+  answers Answer[]
+}
+
+model Option {
+  questionId Int
+  question Question @relation(fields: [questionId], references: [id])
+  id Int @id @default(autoincrement())
+  optionLabel String
+  votes Int @default(0)
+  isDeleted Boolean @default(false)
+}
+
+model Answer {
+  submissionId Int
+  submission Submission @relation(fields: [submissionId], references: [id])
+  questionId Int
+  question Question @relation(fields: [questionId], references: [id])
+  optionId Int?
+  textResponse String?
+  id Int @id @default(autoincrement())
+}
