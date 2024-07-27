@@ -1,5 +1,4 @@
 const { prisma } = require('./config');
-const axios = require('axios')
 
 const runScheduledTasks = async () => {
     try {
