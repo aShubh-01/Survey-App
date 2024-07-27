@@ -11,7 +11,7 @@ const mainRouter = express();
 
 mainRouter.use(express.json())
 
-mainRouter.head('/', (req, res)=> {console.log('API Working')};
+mainRouter.head('/', (req, res)=> {console.log('API Working')});
 mainRouter.get('/', (req, res) => {res.send("API Working")});
 
 mainRouter.use('/users', userRouter);
