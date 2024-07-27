@@ -111,8 +111,8 @@ const submitResponse = async (req, res) => {
                 data: { votes: { increment: 1 } }
             })
 
-            console.log(`Response submitted for ${userId, surveyId}`)
             isSubmitted = true;
+            console.log('Response submitted for ', userId + " " + surveyId)
         })
 
         if(isSubmitted) {

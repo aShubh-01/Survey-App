@@ -276,5 +276,6 @@ module.exports = {
     deleteSurvey,
     getSurvey,
     getSurveys,
-    publishSurvey
+    publishSurvey,
+    toggleSubmissionAllowance
 }
