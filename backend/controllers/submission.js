@@ -5,7 +5,11 @@ const fetchResponses = async (req, res) => {
     const surveyId = parseInt(req.params.id);
     try {
         const responses = await prisma.submission.findMany({
-            
+            where: { surveyId, isDeleted: false },
+            select: {
+                isAnonymous: true,
+                
+            }
         })
 
         res.status(200).json({
@@ -117,7 +121,7 @@ const submitResponse = async (req, res) => {
             })
         } else {
             return res.status(500).json({
-                message: "Response not submitted!"
+                message: "Response submission failed"
             })
         }
         
