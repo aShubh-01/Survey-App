@@ -95,7 +95,7 @@ const toggleSubmissionAllowance = async (req, res) => {
             data: { isClosed: !isClosed}
         })
 
-        if(isClosed) {
+        if(!isClosed) {
             res.status(200).json({
                 message: "Submissions Closed"
             })
