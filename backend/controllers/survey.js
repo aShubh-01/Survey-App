@@ -81,7 +81,7 @@ const publishSurvey = async (req, res) => {
 }
 
 const toggleSubmissionAllowance = async (req, res) => {
-    const survetId = parseInt(req.params.id);
+    const surveyId = parseInt(req.params.id);
     const userId = req.userId;
 
     const { isClosed } = await prisma.survey.findFirst({
