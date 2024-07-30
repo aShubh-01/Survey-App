@@ -1,16 +1,17 @@
-import { BrowserRouter, Router, Route} from 'react-router-dom';
+import { BrowserRouter, Routes, Route} from 'react-router-dom';
 import React, { Suspense } from 'react';
-const AuthComponent = React.lazy(() => import('./components/Auth'))
 import './App.css'
+
+const AuthComponent = React.lazy(() => import('./components/pages/Auth'))
 
 function App() {
 
   return (
       <BrowserRouter>
         <Suspense fallback={<div>Loading...</div>}>
-          <Router>
-            <Route path='/' component={AuthComponent} />
-          </Router>
+          <Routes>
+            <Route path='/' element={<AuthComponent />} />
+          </Routes>
         </Suspense>
       </BrowserRouter>
   );
