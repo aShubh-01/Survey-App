@@ -2,14 +2,16 @@ import queriousLogo from '../../assets/images/queriousLogo.png';
 
 export default function AuthComponent() {
     return (
-        <div className='bg-[#FAE593] h-screen'>
+        <div className='bg-[#2887CC] h-screen'>
             <div className='flex justify-center'>
                 <div><Heading /></div>
             </div>
-            <div className='md:max-w-[500px] md:p-[15px] md:border-[2px] md:rounded-[5px]
-                    max-w-[350px] p-[5px] bg-[#FFF6D9] border-black border-[1px] rounded-[5px]'>
-                <div><EmailInput /></div>
-                <div><CodeInput /></div>
+            <div className='my-[10px] flex justify-center'>
+                <div className='md:p-[10px] md:border-[2px] md:rounded-[5px]
+                        align-center p-[5px] bg-[#C0C0C0] border-white border-[1px] rounded-[5px]'>
+                    <div><EmailInput /></div>
+                    <div><CodeInput /></div>
+                </div>
             </div>
         </div>
     )
@@ -17,7 +19,7 @@ export default function AuthComponent() {
 
 const Heading = () => {
     return <div>
-        <img className='h-[320px] md:h-[380px]' src={queriousLogo} alt="Querious Logo" />
+        <img className='h-[320px] md:h-[450px]' src={queriousLogo} alt="Querious Logo" />
     </div>
 }
 
@@ -40,7 +42,7 @@ const EmailInput = () => {
         </div>
         <div>
             <button onClick={sendEmail} className='md:p-[2px] md:w-[100px] md:text-[20px] md:border-[2px] md:font-semibold
-                p-[2px] w-[80px] bg-[#FED688] text-[20px] border-black border-[2px] font-semibold rounded-[7px]'>
+                p-[2px] w-[80px] bg-[#FED688] text-[20px] border-black border-[2px] font-semibold rounded-[20px]'>
                 Send
             </button>
         </div>
@@ -55,6 +57,18 @@ const SendingMailLoading = () => {
 
 const CodeInput = () => {
     return <div>
-
+        <div className='flex justify-center'>
+            <div><input className='pl-[5px] text-[15px] w-[335px] rounded-[5px] border-black border-[2px]' type='text' placeholder='Enter your code' /></div>    
+        </div>
+        <div className='flex justify-around'>
+            <div><button className='p-[5px] px-[20px] bg-blue-400 text-white'>
+                Verify
+                </button>
+            </div>
+            <div><button>
+                Resend
+                </button>
+            </div>
+        </div>
     </div>
 }
