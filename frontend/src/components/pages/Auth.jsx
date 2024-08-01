@@ -7,10 +7,14 @@ export default function AuthComponent() {
                 <div><Heading /></div>
             </div>
             <div className='my-[10px] flex justify-center'>
-                <div className='md:p-[10px] md:border-[2px] md:rounded-[5px]
-                        align-center p-[5px] bg-[#C0C0C0] border-white border-[1px] rounded-[5px]'>
-                    <div><EmailInput /></div>
-                    <div><CodeInput /></div>
+                <div className='md:p-[10px] md:border-[5px] md:rounded-[10px]
+                        align-center p-[5px] border-white border-[3px] rounded-[5px]'>
+                    {
+                        //<div><EmailInput /></div>
+                    }
+                    {
+                        <div><CodeInput /></div>
+                    }
                 </div>
             </div>
         </div>
@@ -19,7 +23,7 @@ export default function AuthComponent() {
 
 const Heading = () => {
     return <div>
-        <img className='h-[320px] md:h-[450px]' src={queriousLogo} alt="Querious Logo" />
+        <img className='h-[250px] md:h-[450px]' src={queriousLogo} alt="Querious Logo" />
     </div>
 }
 
@@ -35,13 +39,13 @@ const EmailInput = () => {
 
     return <div className='flex justify-center gap-[5px] md:gap-[20px]'>
         <div>
-            <input className='md:pl-[10px] md:w-[360px] md:text-[18px]
-                p-[2px] pl-[5px] w-[250px] h-[38px] border-black border-[2px] text-[15px] rounded-[5px]'
+            <input className='md:py-[10px] md:pl-[10px] md:w-[360px] md:text-[18px]
+                p-[5px] pl-[5px] w-[230px] border-black border-[2px] text-[15px] rounded-[5px]'
                 placeholder='Enter your email' type='email' onKeyDown={handleEnterEvent}
             />
         </div>
         <div>
-            <button onClick={sendEmail} className='md:p-[2px] md:w-[100px] md:text-[20px] md:border-[2px] md:font-semibold
+            <button onClick={sendEmail} className='md:py-[8px] md:w-[100px] md:text-[20px] md:rounded-[25px] md:border-[2px] md:font-semibold
                 p-[2px] w-[80px] bg-[#FED688] text-[20px] border-black border-[2px] font-semibold rounded-[20px]'>
                 Send
             </button>
@@ -58,14 +62,17 @@ const SendingMailLoading = () => {
 const CodeInput = () => {
     return <div>
         <div className='flex justify-center'>
-            <div><input className='pl-[5px] text-[15px] w-[335px] rounded-[5px] border-black border-[2px]' type='text' placeholder='Enter your code' /></div>    
+            <div><input className='md:p-[8px] md:pl-[10px] md:text-[18px]
+                p-[5px] pl-[5px] text-[15px] w-[315px] rounded-[5px] border-black border-[2px]' type='text' placeholder='Enter your code' /></div>    
         </div>
-        <div className='flex justify-around'>
-            <div><button className='p-[5px] px-[20px] bg-blue-400 text-white'>
+        <div className='flex justify-around p-[10px]'>
+            <div><button className='md:p-[5px] md:px-[20px] md:text-[20px] md:font-bold md:tracking-wide md:border-[4px] md:rounded-[20px]
+                    p-[10px] px-[20px] bg-blue-400 text-[18px] text-white font-semibold tracking-tight border-black border-[2px] rounded-[25px]'>
                 Verify
                 </button>
             </div>
-            <div><button>
+            <div><button className='md:p-[5px] md:px-[20px] md:text-[20px] md:font-bold md:tracking-wide md:border-[4px] md:rounded-[20px]
+                    p-[10px] px-[20px] bg-green-400 text-[18px] text-white font-semibold tracking-tight border-black border-[2px] rounded-[25px]'>
                 Resend
                 </button>
             </div>
