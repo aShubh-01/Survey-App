@@ -65,19 +65,6 @@ const verifyCode = async (req, res, next) => {
             }
         })
 
-        const { id: existingUserId } = await prisma.user.findUnique({
-            where: { email: email },
-            select: { id: true }
-        })
-
-        if(existingUserId){
-            const token = generateJWT({ userId: existingUserId})
-            return res.status(200).json({
-                message: "Verification Successful",
-                token: token
-            })
-        }
-
         next()
 
     } catch (err) {
@@ -91,8 +78,10 @@ const verifyCode = async (req, res, next) => {
 const signUp = async (req, res) => {
     const { email } = req.body;
     try {
-        const user = await prisma.user.create({
-            data: { email: email },
+        const user = await prisma.user.upsert({
+            where: { email: email },
+            update: {},
+            create: { email: email },
             select: { id: true }
         });
 
