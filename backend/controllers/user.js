@@ -18,29 +18,13 @@ const sendVerificationCode = async (req, res) => {
         subject: 'Verification Code for Querious - Survey app',
         html: `<p>Your verification code for survey authentication is <b>${code}</b></p>`
     };
-
-    const existingUser = await prisma.verification.findUnique({
-        where: { email: email }
-    });
-
-    if(existingUser) {
-        await transporter.sendMail(mailOptions);
-        await prisma.verification.update({
-            where: { email: email },
-            data: { 
-                code: code
-            }
-        });
-
-        return res.status(200).json({
-            message: "Verification code sent"
-        })
-    }
-
+    
     try {
         await transporter.sendMail(mailOptions);
-        await prisma.verification.create({
-            data: {
+        await prisma.verification.upsert({
+            where: { email: email},
+            update: { code: code },
+            create: {
                 email: email,
                 code: code
             }
@@ -62,12 +46,12 @@ const verifyCode = async (req, res, next) => {
     const { email, code } = req.body;
 
     try {
-        const expectedCode = await prisma.verification.findFirst({
+        const { code: expectedCode } = await prisma.verification.findFirst({
             where: { email: email },
             select: { code: true }
         });
 
-        if (!expectedCode || expectedCode.code !== code) {
+        if (!expectedCode || expectedCode !== code) {
             return res.status(400).json({
                 message: "Invalid code"
             })
@@ -81,13 +65,13 @@ const verifyCode = async (req, res, next) => {
             }
         })
 
-        const existingUser = await prisma.user.findUnique({
+        const { id: existingUserId } = await prisma.user.findUnique({
             where: { email: email },
             select: { id: true }
         })
 
-        if(existingUser){
-            const token = generateJWT({ userId: existingUser.id})
+        if(existingUserId){
+            const token = generateJWT({ userId: existingUserId})
             return res.status(200).json({
                 message: "Verification Successful",
                 token: token
