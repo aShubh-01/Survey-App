@@ -19,7 +19,7 @@ export default function AuthComponent() {
 
 const Heading = () => {
     return <div>
-        <img className='h-[320px] md:h-[450px]' src={queriousLogo} alt="Querious Logo" />
+        <img className='h-[300px] md:h-[450px]' src={queriousLogo} alt="Querious Logo" />
     </div>
 }
 
