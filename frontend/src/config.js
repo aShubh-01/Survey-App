@@ -1,0 +1,1 @@
+export const backendUrl = import.meta.BACKEND_URL; 
