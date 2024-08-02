@@ -1,8 +1,13 @@
 import { useState } from 'react';
+import axios from 'axios';
 import queriousLogo from '../../assets/images/queriousLogo.png';
+import { backendUrl } from '../../config';
 
 export default function AuthComponent() {
     const [isEmailSent, setIsEmailSent] = useState(false);
+    const [userEmail, setUserEmail] = useState('');
+
+    console.log(backendUrl)
     
     return (
         <div className='bg-[#2887CC] h-screen'>
@@ -10,13 +15,13 @@ export default function AuthComponent() {
                 <div><Heading /></div>
             </div>
             <div className='my-[10px] flex justify-center'>
-                <div className='md:p-[10px] md:border-[5px] md:rounded-[10px]
-                        align-center p-[5px] border-white border-[3px] rounded-[5px]'>
+                <div className='md:p-[5px] md:border-[3px] md:rounded-[10px]
+                        align-center p-[5px] border-white border-[1px] rounded-[6px]'>
                     {!isEmailSent &&
-                        <div onClick={() => {setIsEmailSent(true)}}><EmailInput /></div>
+                        <div><EmailInput email={userEmail} setEmail={setUserEmail} setIsEmailSent={setIsEmailSent} /></div>
                     }
                     {isEmailSent &&
-                        <div onClick={() => {setIsEmailSent(false)}}><CodeInput /></div>
+                        <div><CodeInput  email={userEmail}/></div>
                     }
                 </div>
             </div>
@@ -30,21 +35,39 @@ const Heading = () => {
     </div>
 }
 
-const EmailInput = () => {
+const EmailInput = ({email, setEmail, setIsEmailSent}) => {
 
     function handleEnterEvent (event) {
         if (event.key === 'Enter') sendEmail();
     }
 
-    async function sendEmail () {
+    const sendEmail = async () => {
+        const response = await axios({
+            url: `${backendUrl}/users/send`,
+            method: 'POST',
+            headers: {
+                'Content-Type': "application/json"
+            },
+            data: {
+                'email': email
+            }
 
+        })
+        
+        console.log(response);
+        if(response.status === 200){
+            alert('Email Sent');
+            setIsEmailSent(true);
+        }
     }
 
-    return <div className='flex justify-center gap-[5px] md:gap-[20px]'>
+    return <div className='md:gap-[20px]
+                flex justify-center gap-[5px]'>
         <div>
             <input className='md:py-[10px] md:pl-[10px] md:w-[360px] md:text-[18px]
-                p-[4px] pl-[5px] w-[230px] border-black border-[2px] text-[15px] rounded-[5px]'
+                p-[4px] pl-[5px] w-[220px] border-black border-[2px] text-[15px] rounded-[5px]'
                 placeholder='Enter your email' type='email' onKeyDown={handleEnterEvent}
+                onChange={(event) => { setEmail(event.target.value) }}
             />
         </div>
         <div>
@@ -62,20 +85,68 @@ const SendingMailLoading = () => {
     </div>
 }
 
-const CodeInput = () => {
+const CodeInput = ({email}) => {
+    const [userCode, setUserCode] = useState('');
+
+    function handleEnterEvent (event) {
+        if (event.key === 'Enter') verifyCode();
+    }
+
+    async function resendEmail () {
+        const response = await axios({
+            url: `${backendUrl}/users/send`,
+            method: 'POST',
+            headers: {
+                'Content-Type': "application/json"
+            },
+            data: {
+                'email': email
+            }
+            
+        })
+        console.log(response);
+        if(response.status === 200){
+            alert('Email Sent');
+        }
+    }
+
+    async function verifyCode () {
+        const response = await axios({
+            url: `${backendUrl}/users/verify`,
+            method: 'POST',
+            headers: {
+                'Content-Type': "application/json"
+            },
+            data: {
+                'email': email,
+                'code': userCode 
+            }
+        })
+
+        console.log(response);
+        if(response.status === 200) alert('Code Valid')
+        else alert('Code Invalid')
+    }
+
     return <div>
         <div className='flex justify-center'>
-            <div><input className='md:p-[8px] md:pl-[10px] md:text-[18px]
-                p-[5px] pl-[5px] text-[15px] w-[315px] rounded-[5px] border-black border-[2px]' type='text' placeholder='Enter your code' /></div>    
+            <div>
+                <input className='md:p-[8px] md:w-[350px] md:pl-[10px] md:text-[18px]
+                    p-[5px] pl-[5px] text-[15px] w-[300px] rounded-[5px] border-black border-[2px]' type='text' placeholder='Enter your code'
+                    onChange={(event) => {setUserCode(event.target.value)}} onKeyDown={handleEnterEvent}
+                />
+            </div>    
         </div>
-        <div className='flex justify-around py-[5px]'>
-            <div><button className='md:p-[5px] md:px-[20px] md:text-[20px] md:font-bold md:tracking-wide md:border-[4px] md:rounded-[20px]
-                    p-[5px] px-[45px] bg-green-400 text-[18px] text-white font-semibold tracking-tight border-black border-[2px] rounded-[5px]'>
+        <div className='flex justify-between py-[5px]'>
+            <div><button className='md:p-[10px] md:px-[45px] md:text-[23px] md:font-bold md:tracking-wide md:border-[3px] md:rounded-[10px]
+                    p-[5px] px-[44px] bg-green-400 text-[18px] text-white font-semibold tracking-tight border-black border-[2px] rounded-[5px]'
+                    onClick={resendEmail}>
                 Resend
                 </button>
             </div>
-            <div><button className='md:p-[5px] md:px-[20px] md:text-[20px] md:font-bold md:tracking-wide md:border-[4px] md:rounded-[20px]
-                    p-[5px] px-[45px] bg-blue-400 text-[18px] text-white font-semibold tracking-tight border-black border-[2px] rounded-[5px]'>
+            <div><button className='md:p-[10px] md:px-[45px] md:text-[23px] md:font-bold md:tracking-wide md:border-[3px] md:rounded-[10px]
+                    p-[5px] px-[44px] bg-blue-400 text-[18px] text-white font-semibold tracking-tight border-black border-[2px] rounded-[5px]'
+                    onClick={verifyCode}>
                 Verify
                 </button>
             </div>
