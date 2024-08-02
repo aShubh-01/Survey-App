@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const userRouter = require('./routers/userRouter');
 const surveyRouter = require('./routers/surveyRouter')
 const questionRouter = require('./routers/questionRouter');
@@ -9,7 +10,8 @@ const { port } = require('./config')
 
 const mainRouter = express();
 
-mainRouter.use(express.json())
+mainRouter.use(express.json());
+mainRouter.use(cors());
 
 mainRouter.head('/');
 mainRouter.get('/', (req, res) => {res.send("API Working")});
