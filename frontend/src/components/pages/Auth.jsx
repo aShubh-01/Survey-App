@@ -1,19 +1,6 @@
-<<<<<<< Updated upstream
-=======
-import { useState, useEffect } from 'react';
-import axios from 'axios';
->>>>>>> Stashed changes
 import queriousLogo from '../../assets/images/queriousLogo.png';
 
 export default function AuthComponent() {
-<<<<<<< Updated upstream
-=======
-    const [isEmailSent, setIsEmailSent] = useState(false);
-    const [userEmail, setUserEmail] = useState('');
-
-    useEffect(() => {console.log(backendUrl)}, [])
-    
->>>>>>> Stashed changes
     return (
         <div className='bg-[#FAE593] h-screen'>
             <div className='flex justify-center'>

@@ -11,6 +11,7 @@ const { port } = require('./config')
 const mainRouter = express();
 
 mainRouter.use(express.json());
+
 mainRouter.use(cors());
 
 mainRouter.head('/');
