@@ -81,21 +81,21 @@ const publishSurvey = async (req, res) => {
 }
 
 const toggleSubmissionAllowance = async (req, res) => {
-    const survetId = parseInt(req.params.id);
+    const surveyId = parseInt(req.params.id);
     const userId = req.userId;
 
-    const { isClosed } = await prisma.survey.select({
-        where: { id: survetId, userId },
+    const { isClosed } = await prisma.survey.findFirst({
+        where: { id: surveyId, userId },
         select: { isClosed: true}
     });
 
     try {
         await prisma.survey.update({
-            where: { id: survetId, userId },
+            where: { id: surveyId, userId },
             data: { isClosed: !isClosed}
         })
 
-        if(isClosed) {
+        if(!isClosed) {
             res.status(200).json({
                 message: "Submissions Closed"
             })
