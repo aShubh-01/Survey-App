@@ -1,13 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import queriousLogo from '../../assets/images/queriousLogo.png';
-import { backendUrl } from '../../config';
+import { backendUrl } from '../../config.js'
+import { LoadAuth } from '../AnimatedComponents.jsx';
 
 export default function AuthComponent() {
     const [isEmailSent, setIsEmailSent] = useState(false);
     const [userEmail, setUserEmail] = useState('');
-
-    console.log(backendUrl)
     
     return (
         <div className='bg-[#2887CC] h-screen'>
@@ -71,8 +71,8 @@ const EmailInput = ({email, setEmail, setIsEmailSent}) => {
             />
         </div>
         <div>
-            <button onClick={sendEmail} className='md:py-[8px] md:w-[100px] md:text-[20px] md:rounded-[25px] md:border-[2px] md:font-semibold
-                p-[2px] w-[80px] bg-green-400 text-[18px] text-white border-black border-[2px] font-semibold rounded-[5px]'>
+            <button onClick={sendEmail} className='md:py-[8px] md:px-[20px] md:text-[20px] md:rounded-[8px] md:border-[2px] md:font-semibold
+                p-[2px] px-[20px] bg-green-400 text-[18px] text-white border-black border-[2px] font-semibold rounded-[5px]'>
                 Send
             </button>
         </div>
@@ -86,6 +86,7 @@ const SendingMailLoading = () => {
 }
 
 const CodeInput = ({email}) => {
+    const navigate = useNavigate();
     const [userCode, setUserCode] = useState('');
 
     function handleEnterEvent (event) {
@@ -124,7 +125,10 @@ const CodeInput = ({email}) => {
         })
 
         console.log(response);
-        if(response.status === 200) alert('Code Valid')
+        if(response.status === 200) {
+            localStorage.setItem('token', response.data.token)
+            navigate('/dashboard')
+        }
         else alert('Code Invalid')
     }
 
