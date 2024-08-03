@@ -1,6 +1,7 @@
 const { transporter, prisma, jwtSecret } = require('../config.js');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { emailSchema } = require('../schemas/userSchema.js');
 
 const generateJWT = (data) => {
     const token = jwt.sign(data, jwtSecret);
@@ -9,6 +10,14 @@ const generateJWT = (data) => {
 
 const sendVerificationCode = async (req, res) => {
     const { email } = req.body;
+
+    const parseResponse = emailSchema.safeParse(email)
+    if(!parseResponse.success) {
+        return res.status(500).json({
+            message: "Invalid email schema",
+            issues: parseResponse.error.issues
+        })
+    }
 
     const code = crypto.randomBytes(3).toString('hex');
 

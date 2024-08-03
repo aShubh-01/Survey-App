@@ -1,15 +1,23 @@
-const { prisma } = require('../config')
+const { prisma } = require('../config');
+const { questionSchema } = require('../schemas/surveySchema');
 
 const createQuestion = async (req, res) => {
-    const { surveyId, questionLabel, type, isRequired } = req.body;
+    const { surveyId, questionLabel, type } = req.body;
+
+    const parseResponse = questionSchema.safeParse(req.body);
+    if(!parseResponse.success) {
+        return res.status(500).json({
+            message: "Invalid question schema",
+            issues: parseResponse.error.issues
+        })
+    }
 
     try {
         const { id: questionId } = await prisma.question.create({
             data: {
                 surveyId: parseInt(surveyId),
                 questionLabel: questionLabel,
-                type: type,
-                isRequired: isRequired || false
+                type: type
             },
             select: {
                 id: true
@@ -30,10 +38,18 @@ const createQuestion = async (req, res) => {
 }
 
 const updateQuestion = async (req, res) => {
-    try {
-        const { questionLabel, type } = req.body;
-        const questionId = parseInt(req.params.id);
+    const { questionLabel, type } = req.body;
+    const questionId = parseInt(req.params.id);
 
+    const parseResponse = questionSchema.safeParse(req.body);
+    if(!parseResponse.success) {
+        return res.status(500).json({
+            message: "Invalid question schema",
+            issues: parseResponse.error.issues
+        })
+    }
+
+    try {
         await prisma.question.update({
             where: {
                 id: questionId,

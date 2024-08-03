@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { prisma, jwtSecret } = require('../config');
+const { surveySchema } = require('../schemas/surveySchema');
 
 const getSurveys = async (req, res) => {
     try {
@@ -172,6 +173,14 @@ const createSurvey =  async (req, res) => {
 
         const { userId } = jwt.decode(userToken, jwtSecret);
 
+        const parseResponse = surveySchema.safeParse(req.body);
+        if(!parseResponse.success) {
+            return res.status(500).json({
+                message: "Invalid survey schema",
+                issues: parseResponse.error.issues
+            })
+        }
+
         const surveyId = await prisma.survey.create({
             data: {
                 userId: userId,
@@ -201,6 +210,14 @@ const updateSurvey = async (req, res) => {
     try {
         const surveyPayload = req.body;
         const surveyId = parseInt(req.params.id);
+
+        const parseResponse = surveySchema.safeParse(req.body);
+        if(!parseResponse.success) {
+            return res.status(500).json({
+                message: "Invalid survey schema",
+                issues: parseResponse.error.issues
+            })
+        }
 
         await prisma.survey.update({
             where: { id: surveyId },
@@ -268,7 +285,6 @@ const deleteSurvey = async (req, res) => {
         })
     }
 }
-
 
 module.exports = {
     createSurvey,
