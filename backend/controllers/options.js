@@ -1,6 +1,16 @@
 const { prisma } = require('../config')
+const { optionSchema } = require('../schemas/surveySchema');
 
 const createOption = async (req, res) => {
+    
+    const parseResponse = optionSchema.safeParse(req.body);
+    if(!parseResponse.success){
+        return res.status(500).json({
+            message: "Invalid option schema",
+            issues: parseResponse.error.issues
+        })
+    }
+
     try {
         const { optionLabel, questionId } = req.body;
         
@@ -28,6 +38,15 @@ const createOption = async (req, res) => {
 }
 
 const updateOption = async (req, res) => {
+    
+    const parseResponse = optionSchema.safeParse(req.body);
+    if(!parseResponse.success){
+        return res.status(500).json({
+            message: "Invalid option schema",
+            issues: parseResponse.error.issues
+        })
+    }
+
     try {
         const optionId = parseInt(req.params.id);
         const { optionLabel } = req.body;
