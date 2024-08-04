@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import queriousLogo from '../../assets/images/queriousLogo.png';
 import { backendUrl } from '../../config.js'
+import { LoadAuth } from '../AnimatedComponents.jsx';
 
 export default function AuthComponent() {
     const [isEmailSent, setIsEmailSent] = useState(false);
@@ -84,6 +86,7 @@ const SendingMailLoading = () => {
 }
 
 const CodeInput = ({email}) => {
+    const navigate = useNavigate();
     const [userCode, setUserCode] = useState('');
 
     function handleEnterEvent (event) {
@@ -122,7 +125,10 @@ const CodeInput = ({email}) => {
         })
 
         console.log(response);
-        if(response.status === 200) alert('Code Valid')
+        if(response.status === 200) {
+            localStorage.setItem('token', response.data.token)
+            navigate('/dashboard')
+        }
         else alert('Code Invalid')
     }
 
