@@ -56,7 +56,13 @@ const updateQuestion = async (req, res) => {
             },
             data: {
                 questionLabel: questionLabel,
-                type: type
+                type: type,
+                options: {
+                    updateMany: {
+                        where: { questionId },
+                        data: { isDeleted: true }
+                    }
+                }
             }
         });
 
