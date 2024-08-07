@@ -11,7 +11,7 @@ export default function DashboardComponent() {
                     <div><ButtonComponent label="Saved Surveys" icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="md:size-10 size-7"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" /></svg> } /></div>
                 </div>
             </div>
-            <div className='md:m-[50px] m-[15px] flex justify-center'>
+            <div className='md:m-[50px] my-[60px] flex justify-center'>
                 <PublishedSurveysComponent />
             </div>
         </div>
@@ -48,7 +48,7 @@ const PublishedSurveysComponent = () => {
             border-2 border-black'>
             <thead>
                 <tr>
-                    <th className='w-1/2 text-left p-1 pl-[12px]'>Title</th>
+                    <th className='w-1/2 text-left p-1'>Title</th>
                     <th className='w-1/3 text-right p-1'>Responses</th>
                     <th className='w-1/3 text-right p-1'>Status</th>
                 </tr>
@@ -60,23 +60,51 @@ const PublishedSurveysComponent = () => {
                 <tbody>
                     <tr>
                         <div className='my-[3px] border-black border-2'>
-                            <td className='w-[150px] p-[7px] text-left'>Survey 1st</td>
-                            <td className='w-[100px] text-center'>4</td>
+                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
+                            <td className='w-[115px] text-center'>4</td>
                             <td className='w-right pr-[5px]'>Closed</td>
                        </div>
                     </tr>
                     <tr>
                         <div className='my-[3px] border-black border-2'>
-                            <td className='w-[150px] p-[7px] text-left'>Survey second</td>
-                            <td className='w-[100px] text-center'>11</td>
-                            <td className='w-right pr-[2px]'>Open</td>
+                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
+                            <td className='w-[115px] text-center'>4</td>
+                            <td className='w-right pr-[5px]'>Closed</td>
                        </div>
                     </tr>
                     <tr>
                         <div className='my-[3px] border-black border-2'>
-                            <td className='w-[150px] p-[7px] text-left'>Survey third</td>
-                            <td className='w-[100px] text-center'>0</td>
-                            <td className='w-right pr-[2px]'>Closed</td>
+                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
+                            <td className='w-[115px] text-center'>4</td>
+                            <td className='w-right pr-[5px]'>Closed</td>
+                       </div>
+                    </tr>
+                    <tr>
+                        <div className='my-[3px] border-black border-2'>
+                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
+                            <td className='w-[115px] text-center'>4</td>
+                            <td className='w-right pr-[5px]'>Closed</td>
+                       </div>
+                    </tr>
+                    <tr>
+                        <div className='my-[3px] border-black border-2'>
+                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
+                            <td className='w-[115px] text-center'>4</td>
+                            <td className='w-right pr-[5px]'>Closed</td>
+                       </div>
+                    </tr>
+                    <tr>
+                        <div className='my-[3px] border-black border-2'>
+                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
+                            <td className='w-[115px] text-center'>4</td>
+                            <td className='w-right pr-[5px]'>Closed</td>
+                       </div>
+                    </tr>
+                    <tr>
+                        <div className='my-[3px] border-black border-2'>
+                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
+                            <td className='w-[115px] text-center'>4</td>
+                            <td className='w-right pr-[5px]'>Closed</td>
                        </div>
                     </tr>
                 </tbody>
