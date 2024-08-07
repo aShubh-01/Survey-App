@@ -125,6 +125,7 @@ const CodeInput = ({email}) => {
 
         console.log(response);
         if(response.status === 200) {
+<<<<<<< HEAD
             alert('Code Valid');
             navigate('/dashboard');
         }
