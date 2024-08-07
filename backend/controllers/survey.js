@@ -221,11 +221,7 @@ const updateSurvey = async (req, res) => {
 
         await prisma.survey.update({
             where: { id: surveyId },
-            data: {
-                surveyTitle: surveyPayload.surveyTitle,
-                description: surveyPayload.description || null,
-                closingDate: surveyPayload.closingDate || null
-            }
+            data: surveyPayload
         })
 
         return res.status(200).json({
