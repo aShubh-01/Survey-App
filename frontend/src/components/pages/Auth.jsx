@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import queriousLogo from '../../assets/images/queriousLogo.png';
 import { backendUrl } from '../../config.js'
+<<<<<<< HEAD
 import { LoadAuth } from '../AnimatedComponents.jsx';
+=======
+import { useNavigate } from 'react-router-dom';
+>>>>>>> 9e82aa9 (Added Publish survey monitor component)
 
 export default function AuthComponent() {
     const [isEmailSent, setIsEmailSent] = useState(false);
@@ -88,6 +92,7 @@ const SendingMailLoading = () => {
 const CodeInput = ({email}) => {
     const navigate = useNavigate();
     const [userCode, setUserCode] = useState('');
+    const navigate = useNavigate();
 
     function handleEnterEvent (event) {
         if (event.key === 'Enter') verifyCode();
@@ -126,10 +131,16 @@ const CodeInput = ({email}) => {
 
         console.log(response);
         if(response.status === 200) {
+<<<<<<< HEAD
             localStorage.setItem('token', response.data.token)
             navigate('/dashboard')
         }
         else alert('Code Invalid')
+=======
+            alert('Code Valid');
+            navigate('/dashboard');
+        }
+>>>>>>> 9e82aa9 (Added Publish survey monitor component)
     }
 
     return <div>
