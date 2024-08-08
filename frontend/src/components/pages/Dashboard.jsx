@@ -1,5 +1,6 @@
-import dashboardLogo from '../../assets/images/dashboardLogo.png'
-import { useGetTodos } from '../../state/customHooks/getTodos'
+import dashboardLogo from '../../assets/images/dashboardLogo.png';
+import { useGetSurvey } from '../../state/customHooks/getSurvey';
+import { useMediaQuery } from 'react-responsive';
 
 export default function DashboardComponent() {
     return (
@@ -37,7 +38,8 @@ const ButtonComponent = ({label, icon, onClickDo}) => {
 }
 
 const PublishedSurveysComponent = () => {
-    const surveys = useGetTodos();
+    const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
+    const surveys = useGetSurvey();
     let key = 1;
 
     if(surveys.isLoading) return <div>Loading</div>
@@ -48,50 +50,44 @@ const PublishedSurveysComponent = () => {
             border-2 border-black'>
             <thead>
                 <tr>
-                    <th className='w-1/2 pl-[15px] text-left p-1'>Title</th>
-                    <th className='w-1/3 text-right p-1'>Responses</th>
-                    <th className='w-1/3 pr-[12px] text-right p-1'>Status</th>
+                    <th className='md:p-2 md:pl-[25px]
+                        w-1/2 pl-[15px] text-left p-1'>Title</th>
+                    <th className='md:p-2 md:text-center
+                        w-1/3 text-right p-1'>Responses</th>
+                    <th className='p-2 text-right
+                        w-1/3 pr-[12px] md:text-center p-1'>Status</th>
                 </tr>
             </thead>
         </table>
-        <div className='md:max-h-[400px] md:h-[400px]
+        <div className='md:max-h-[400px]
             my-[5px] overflow-y-auto max-h-[180px] border-black border-2'>
             <table>
                 <tbody>
+                    {
+                        surveys.surveys.publishedSurveys.map((survey) => {
+                            const surveyTitle = survey.surveyTitle;
+
+                            return <div key={key++} className='md:m-[10px] md:text-[23px]
+                                        m-[3px] border-black border-2'>
+                                <td className='md:w-[500px]
+                                    w-[140px] px-[5px] py-[7px] text-left'>{(isSmallScreen ? 
+                                    (surveyTitle.length > 15 ? surveyTitle.slice(0, 15) + "..." : surveyTitle) :
+                                    (surveyTitle.length > 32 ? surveyTitle.slice(0, 32) + "..." : surveyTitle.slice(0, 35)))}
+                                </td>
+                                <td className='md:w-[300px]
+                                    w-[115px] px-[5px]  py-[7px] text-center'> {survey._count.submission > 99 ? 99 + "+" : survey._count.submission}
+                                </td>
+                                <td className='md:text-center md:w-[170px] md:pl-[28px]
+                                    w-right px-[5px] py-[7px]'> {survey.isClosed ? 
+                                    <div>Closed</div> :
+                                    <div>Open</div>
+                                    }
+                                </td>
+                            </div>
+                        })
+                    }
                     <tr>
-                        <div className='m-[3px] border-black border-2'>
-                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
-                            <td className='w-[115px] text-center'>4</td>
-                            <td className='w-right pr-[5px]'>Closed</td>
-                       </div>
-                    </tr>
-                    <tr>
-                        <div className='m-[3px] border-black border-2'>
-                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
-                            <td className='w-[115px] text-center'>4</td>
-                            <td className='w-right pr-[5px]'>Closed</td>
-                       </div>
-                    </tr>
-                    <tr>
-                        <div className='m-[3px] border-black border-2'>
-                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
-                            <td className='w-[115px] text-center'>4</td>
-                            <td className='w-right pr-[5px]'>Closed</td>
-                       </div>
-                    </tr>
-                    <tr>
-                        <div className='m-[3px] border-black border-2'>
-                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
-                            <td className='w-[115px] text-center'>4</td>
-                            <td className='w-right pr-[5px]'>Closed</td>
-                       </div>
-                    </tr>
-                    <tr>
-                        <div className='m-[3px] border-black border-2'>
-                            <td className='w-[140px] p-[5px] py-[7px] text-left'>Survey 1st</td>
-                            <td className='w-[115px] text-center'>4</td>
-                            <td className='w-right pr-[5px]'>Closed</td>
-                       </div>
+                        
                     </tr>
                 </tbody>
             </table>
