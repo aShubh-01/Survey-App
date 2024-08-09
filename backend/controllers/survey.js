@@ -83,7 +83,7 @@ const publishSurvey = async (req, res) => {
 }
 
 const toggleSubmissionAllowance = async (req, res) => {
-    const survetId = parseInt(req.params.id);
+    const surveyId = parseInt(req.params.id);
     const userId = req.userId;
 
     try {
@@ -93,7 +93,7 @@ const toggleSubmissionAllowance = async (req, res) => {
         });
 
         await prisma.survey.update({
-            where: { id: survetId, userId },
+            where: { id: surveyId, userId },
             data: { isClosed: !isClosed}
         })
 
@@ -222,11 +222,7 @@ const updateSurvey = async (req, res) => {
 
         await prisma.survey.update({
             where: { id: surveyId },
-            data: {
-                surveyTitle: surveyPayload.surveyTitle,
-                description: surveyPayload.description || null,
-                closingDate: surveyPayload.closingDate || null
-            }
+            data: surveyPayload
         })
 
         return res.status(200).json({
