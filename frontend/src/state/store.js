@@ -1,3 +1,10 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import allSurveyReducer from './features/fetchSurveysSlice';
 
-export const store = configureStore({});
+const rootReducer = combineReducers({
+    allSurveys: allSurveyReducer
+})
+
+export const store = configureStore({
+    reducer: rootReducer
+})

@@ -1,3 +1,6 @@
+import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { fetchAllSurveys } from '../../state/features/fetchSurveysSlice';
 import dashboardLogo from '../../assets/images/dashboardLogo.png';
 import { useGetSurvey } from '../../state/customHooks/getSurvey';
 import { useMediaQuery } from 'react-responsive';
@@ -38,13 +41,18 @@ const ButtonComponent = ({label, icon, onClickDo}) => {
 }
 
 const PublishedSurveysComponent = () => {
-    const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
-    const surveys = useGetSurvey();
     let key = 1;
+    const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
+    const dispatch = useDispatch();
+    const { loading, data : surveys, error } = useSelector((state) => state.allSurveys);
 
-    if(surveys.isLoading) return <div>Loading</div>
+    useEffect(() => {
+        dispatch(fetchAllSurveys())
+    }, [dispatch])
 
-    console.log(surveys.surveys.publishedSurveys);
+    if(loading) return <div>Loading</div>
+    if(error) return <div>Unable to fetch published surveys</div>
+
     return <div className='md:text-[21px]'>
         <table className='md:w-[1000px] md:border-4
             border-2 border-black'>
@@ -64,7 +72,7 @@ const PublishedSurveysComponent = () => {
             <table>
                 <tbody>
                     {
-                        surveys.surveys.publishedSurveys.map((survey) => {
+                        surveys.publishedSurveys.map((survey) => {
                             const surveyTitle = survey.surveyTitle;
 
                             return <div key={key++} className='md:m-[10px] md:text-[23px]
@@ -92,5 +100,5 @@ const PublishedSurveysComponent = () => {
                 </tbody>
             </table>
         </div>
-    </div>
+    </div> 
 }
