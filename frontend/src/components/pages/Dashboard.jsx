@@ -66,6 +66,7 @@ const PublishedSurveysComponent = () => {
                 </tr>
             </thead>
         </table>
+  
         <div className='md:max-h-[400px] bg-slate-900
             my-[5px] overflow-y-auto max-h-[180px] border-black border-2'>
             <table>
