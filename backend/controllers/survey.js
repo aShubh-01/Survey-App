@@ -15,6 +15,7 @@ const getSurveys = async (req, res) => {
                 isPublished: true,
                 surveyTitle: true,
                 description: true,
+                _count: { select: {submission: true}},
                 questions: {
                     where: {
                         isDeleted: false,
@@ -85,12 +86,20 @@ const toggleSubmissionAllowance = async (req, res) => {
     const surveyId = parseInt(req.params.id);
     const userId = req.userId;
 
+<<<<<<< HEAD
     const { isClosed } = await prisma.survey.findFirst({
         where: { id: surveyId, userId },
         select: { isClosed: true}
     });
 
+=======
+>>>>>>> 745ff16 (Added styling and colours to dashboard component)
     try {
+        const { isClosed } = await prisma.survey.select({
+            where: { id: survetId, userId },
+            select: { isClosed: true}
+        });
+
         await prisma.survey.update({
             where: { id: surveyId, userId },
             data: { isClosed: !isClosed}
