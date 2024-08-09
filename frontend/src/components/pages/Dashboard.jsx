@@ -2,12 +2,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { fetchAllSurveys } from '../../state/features/fetchSurveysSlice';
 import dashboardLogo from '../../assets/images/dashboardLogo.png';
-import { useGetSurvey } from '../../state/customHooks/getSurvey';
 import { useMediaQuery } from 'react-responsive';
 
 export default function DashboardComponent() {
     return (
-        <div>
+        <div className='h-screen bg-[#FFDAB9] text-white'>
             <div className='flex justify-center py-[30px]'><Heading /></div>
             <div className='flex justify-center'>
                 <div className='grid md:grid-cols-2 md:gap-[50px] grid-cols-1'>
@@ -30,7 +29,7 @@ const Heading = () => {
 
 const ButtonComponent = ({label, icon, onClickDo}) => {
     return <div className='flex justify-center md:rounded-[20px]
-                m-[5px] bg-slate-300 rounded-[10px]'>
+                m-[5px] bg-slate-300 rounded-[10px] bg-slate-900'>
         <button className='md:p-[40px] md:px-[50px] gap-[10px]
                 p-[10px] px-[75px] flex justify-center gap-[5px]' onClick={onClickDo}>
             <div>{icon}</div>
@@ -54,7 +53,7 @@ const PublishedSurveysComponent = () => {
     if(error) return <div>Unable to fetch published surveys</div>
 
     return <div className='md:text-[21px]'>
-        <table className='md:w-[1000px] md:border-4
+        <table className='md:w-[1000px] md:border-4 bg-black
             border-2 border-black'>
             <thead>
                 <tr>
@@ -67,7 +66,8 @@ const PublishedSurveysComponent = () => {
                 </tr>
             </thead>
         </table>
-        <div className='md:max-h-[400px]
+  
+        <div className='md:max-h-[400px] bg-slate-900
             my-[5px] overflow-y-auto max-h-[180px] border-black border-2'>
             <table>
                 <tbody>
@@ -75,8 +75,8 @@ const PublishedSurveysComponent = () => {
                         surveys.publishedSurveys.map((survey) => {
                             const surveyTitle = survey.surveyTitle;
 
-                            return <div key={key++} className='md:m-[10px] md:text-[23px]
-                                        m-[3px] border-black border-2'>
+                            return <div key={key++} className='md:m-[10px] md:text-[23px] md:border-2
+                                        m-[3px] border-white border-[1px] rounded-lg bg-black'>
                                 <td className='md:w-[500px]
                                     w-[140px] px-[5px] py-[7px] text-left'>{(isSmallScreen ? 
                                     (surveyTitle.length > 15 ? surveyTitle.slice(0, 15) + "..." : surveyTitle) :
