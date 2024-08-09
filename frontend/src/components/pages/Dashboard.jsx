@@ -19,14 +19,7 @@ export default function DashboardComponent() {
                     <div><ButtonComponent label="Unpublished" icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="md:size-10 size-7"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" /></svg> } /></div>
                 </div>
             </div>
-            <div className='flex justify-center'>
-                <PublishedSurveyComponent />
-=======
-                    <div><ButtonComponent label="New Survey" icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="md:size-10 size-7"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>}/></div>
-                    <div><ButtonComponent label="Unpublished" icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="md:size-10 size-7"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" /></svg> } /></div>
-                </div>
-            </div>
-            <div className='m-[15px] flex justify-center'>
+            <div className='md:m-[50px] my-[60px] flex justify-center'>
                 <PublishedSurveysComponent />
             </div>
         </div>
@@ -78,16 +71,16 @@ const PublishedSurveysComponent = () => {
                 </tr>
             </thead>
         </table>
-        <div className='md:max-h-[400px]
+        <div className='md:max-h-[400px] bg-slate-900
             my-[5px] overflow-y-auto max-h-[180px] border-black border-2'>
-            <table className='bg-black'>
+            <table>
                 <tbody>
                     {
                         surveys.publishedSurveys.map((survey) => {
                             const surveyTitle = survey.surveyTitle;
 
-                            return <div key={key++} className='bg-slate-900 md:m-[10px] md:text-[23px] md:border-2
-                                        m-[3px] border-white border-[1px]'>
+                            return <div key={key++} className='md:m-[10px] md:text-[23px] md:border-2
+                                        m-[3px] border-white border-[1px] rounded-lg bg-black'>
                                 <td className='md:w-[500px]
                                     w-[140px] px-[5px] py-[7px] text-left'>{(isSmallScreen ? 
                                     (surveyTitle.length > 15 ? surveyTitle.slice(0, 15) + "..." : surveyTitle) :
