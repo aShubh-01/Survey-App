@@ -53,7 +53,6 @@ const EmailInput = ({email, setEmail, setIsEmailSent}) => {
 
         })
         
-        console.log(response);
         if(response.status === 200){
             alert('Email Sent');
             setIsEmailSent(true);
@@ -103,7 +102,7 @@ const CodeInput = ({email}) => {
             }
             
         })
-        console.log(response);
+
         if(response.status === 200){
             alert('Email Sent');
         }
@@ -122,9 +121,7 @@ const CodeInput = ({email}) => {
             }
         })
 
-        console.log(response);
         if(response.status === 200) {
-<<<<<<< HEAD
             alert('Code Valid');
             navigate('/dashboard');
         }

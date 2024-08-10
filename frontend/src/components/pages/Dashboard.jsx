@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchAllSurveys } from '../../state/features/fetchSurveysSlice';
 import dashboardLogo from '../../assets/images/dashboardLogo.png';
 import { useMediaQuery } from 'react-responsive';
@@ -71,7 +71,7 @@ const PublishedSurveysComponent = () => {
                 </tr>
             </thead>
         </table>
-        <div className='md:max-h-[400px] bg-slate-700
+        <div className='md:max-h-[400px] bg-slate-800
             my-[5px] overflow-y-auto max-h-[180px] border-black border-2'>
             <table>
                 <tbody>
