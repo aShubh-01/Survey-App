@@ -12,6 +12,7 @@ const getSurveys = async (req, res) => {
             },
             select: {
                 id: true,
+                isClosed: true,
                 isPublished: true,
                 surveyTitle: true,
                 description: true,
@@ -46,7 +47,6 @@ const getSurveys = async (req, res) => {
                 question.options.sort((a, b) => a.id - b.id)
             })
         })
-
 
         return res.status(200).json({
             allSurveys
@@ -86,18 +86,11 @@ const toggleSubmissionAllowance = async (req, res) => {
     const surveyId = parseInt(req.params.id);
     const userId = req.userId;
 
-<<<<<<< HEAD
-    const { isClosed } = await prisma.survey.findFirst({
-        where: { id: surveyId, userId },
-        select: { isClosed: true}
-    });
-
-=======
->>>>>>> 745ff16 (Added styling and colours to dashboard component)
     try {
-        const { isClosed } = await prisma.survey.select({
+        const { isClosed } = await prisma.survey.findFirst({
+
             where: { id: survetId, userId },
-            select: { isClosed: true}
+            select: { isClosed: true } 
         });
 
         await prisma.survey.update({
@@ -230,11 +223,7 @@ const updateSurvey = async (req, res) => {
 
         await prisma.survey.update({
             where: { id: surveyId },
-            data: {
-                surveyTitle: surveyPayload.surveyTitle,
-                description: surveyPayload.description || null,
-                closingDate: surveyPayload.closingDate || null
-            }
+            data: surveyPayload
         })
 
         return res.status(200).json({
