@@ -1,6 +1,6 @@
 
 
-export default function CreateSurvey() {
+export default function CreateSurveyComponent() {
 
     return (
         <>

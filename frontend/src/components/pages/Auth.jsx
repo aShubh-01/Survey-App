@@ -60,8 +60,7 @@ const EmailInput = ({email, setEmail, setIsEmailSent}) => {
         }
     }
 
-    return <div className='md:gap-[20px]
-                flex justify-center gap-[5px]'>
+    return <div className='flex justify-center gap-[5px]'>
         <div>
             <input className='md:py-[10px] md:pl-[10px] md:w-[360px] md:text-[18px]
                 p-[4px] pl-[5px] w-[220px] border-black border-[2px] text-[15px] rounded-[5px]'
@@ -70,7 +69,7 @@ const EmailInput = ({email, setEmail, setIsEmailSent}) => {
             />
         </div>
         <div>
-            <button onClick={sendEmail} className='md:py-[8px] md:px-[20px] md:text-[20px] md:rounded-[8px] md:border-[2px] md:font-semibold
+            <button onClick={sendEmail} className='md:py-[8px] md:px-[40px] md:text-[20px] md:rounded-[8px] md:border-[2px] md:font-semibold
                 p-[2px] px-[20px] bg-green-400 text-[18px] text-white border-black border-[2px] font-semibold rounded-[5px]'>
                 Send
             </button>
