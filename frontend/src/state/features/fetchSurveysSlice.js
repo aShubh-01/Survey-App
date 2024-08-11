@@ -13,7 +13,7 @@ export const fetchAllSurveys = createAsyncThunk('allSurveys/fetchData', async ()
                 'Authorization': localStorage.getItem('token')
             }
         })
-        
+      
         const allSurveys = response.data.allSurveys;
         const publishedSurveys = allSurveys.filter((survey) => survey.isPublished)
         const unpublishedSurveys = allSurveys.filter((survey) => !survey.isPublished)
