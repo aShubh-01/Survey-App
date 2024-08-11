@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import queriousLogo from '../../assets/images/queriousLogo.png';
-import { backendUrl } from '../../config.js'
-import { useNavigate } from 'react-router-dom';
+import { backendUrl } from '../../config.js';
 
 export default function AuthComponent() {
     const [isEmailSent, setIsEmailSent] = useState(false);
@@ -122,8 +122,8 @@ const CodeInput = ({email}) => {
         })
 
         if(response.status === 200) {
-            alert('Code Valid');
-            navigate('/dashboard');
+            localStorage.setItem('token', response.data.token)
+            navigate('/dashboard')
         }
     }
 
