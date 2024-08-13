@@ -16,7 +16,10 @@ const getSurveys = async (req, res) => {
                 isPublished: true,
                 surveyTitle: true,
                 description: true,
-                _count: { select: {submission: true}},
+                _count: { select: {
+                    submission: true,
+                    questions: true
+                }},
                 questions: {
                     where: {
                         isDeleted: false,
@@ -89,7 +92,7 @@ const toggleSubmissionAllowance = async (req, res) => {
     try {
         const { isClosed } = await prisma.survey.findFirst({
 
-            where: { id: survetId, userId },
+            where: { id: surveyId, userId },
             select: { isClosed: true } 
         });
 

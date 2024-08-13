@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import queriousLogo from '../../assets/images/queriousLogo.png';
-import { backendUrl } from '../../config.js';
+import { backendUrl } from '../../config.js'
+import { useNavigate } from 'react-router-dom';
 
 export default function AuthComponent() {
     const [isEmailSent, setIsEmailSent] = useState(false);
@@ -109,21 +109,26 @@ const CodeInput = ({email}) => {
     }
 
     async function verifyCode () {
-        const response = await axios({
-            url: `${backendUrl}/users/verify`,
-            method: 'POST',
-            headers: {
-                'Content-Type': "application/json"
-            },
-            data: {
-                'email': email,
-                'code': userCode 
+        try {
+            const response = await axios({
+                url: `${backendUrl}/users/verify`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                data: {
+                    'email': email,
+                    'code': userCode 
+                }
+            })
+    
+            if(response.status === 200) {
+                localStorage.setItem('queriousToken', response.data.token)
+                alert('Code Valid');
+                navigate('/dashboard');
             }
-        })
-
-        if(response.status === 200) {
-            localStorage.setItem('token', response.data.token)
-            navigate('/dashboard')
+        } catch (err) {
+            alert('Code Invalid')
         }
     }
 
