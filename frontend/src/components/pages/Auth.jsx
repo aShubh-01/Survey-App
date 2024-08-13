@@ -109,21 +109,26 @@ const CodeInput = ({email}) => {
     }
 
     async function verifyCode () {
-        const response = await axios({
-            url: `${backendUrl}/users/verify`,
-            method: 'POST',
-            headers: {
-                'Content-Type': "application/json"
-            },
-            data: {
-                'email': email,
-                'code': userCode 
+        try {
+            const response = await axios({
+                url: `${backendUrl}/users/verify`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                data: {
+                    'email': email,
+                    'code': userCode 
+                }
+            })
+    
+            if(response.status === 200) {
+                localStorage.setItem('queriousToken', response.data.token)
+                alert('Code Valid');
+                navigate('/dashboard');
             }
-        })
-
-        if(response.status === 200) {
-            alert('Code Valid');
-            navigate('/dashboard');
+        } catch (err) {
+            alert('Code Invalid')
         }
     }
 

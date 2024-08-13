@@ -8,10 +8,14 @@ import { useMediaQuery } from 'react-responsive';
 
 export default function DashboardComponent() {
     const navigate = useNavigate();
+    const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
 
     return (
         <div className='h-screen w-full bg-cover bg-center text-white'
-            style={{backgroundImage: `url(${queriousBackground})`}}
+            style={{
+                backgroundSize: isSmallScreen ? '500px' : `1000px`,
+                backgroundImage: `url(${queriousBackground})`
+            }}
         >
         <div className='flex justify-center py-[30px]'><Heading /></div>
         <div className='flex justify-center'>
@@ -21,7 +25,7 @@ export default function DashboardComponent() {
             </div>
         </div>
         <div className='md:m-[50px] my-[60px] flex justify-center'>
-            <PublishedSurveysComponent />
+            <PublishedSurveysComponent isSmallScreen={isSmallScreen}/>
         </div>
     </div>
     )
@@ -45,9 +49,8 @@ const ButtonComponent = ({label, icon, onClickDo}) => {
     </div>
 }
 
-const PublishedSurveysComponent = () => {
+const PublishedSurveysComponent = ({isSmallScreen}) => {
     let key = 1;
-    const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { loading, data : surveys, error } = useSelector((state) => state.allSurveys);
@@ -83,14 +86,15 @@ const PublishedSurveysComponent = () => {
                             const surveyTitle = survey.surveyTitle;
 
                             function analyseSurvey() {
-                                localStorage.setItem('surveyId', survey.id);
+                                //localStorage.setItem('surveyId', survey.id);
                                 navigate('/analyse')
                             }
 
                             return <div key={key++}>
                                 <button onClick={analyseSurvey}
                                     className='md:m-[10px] md:text-[23px] md:border-2
-                                    m-[3px] border-white border-[1px] rounded-lg bg-black'>
+                                    m-[3px] border-white border-[1px] rounded-lg bg-black
+                                    transform translate-transform duration:300 hover:translate-y-[-2px]'>
                                         <td className='md:w-[500px] md:p-[15px]
                                             w-[140px] px-[5px] py-[7px] text-left'>{(isSmallScreen ? 
                                             (surveyTitle.length > 15 ? surveyTitle.slice(0, 15) + "..." : surveyTitle) :
@@ -100,7 +104,7 @@ const PublishedSurveysComponent = () => {
                                             w-[115px] px-[5px]  py-[7px] text-center'> {survey._count.submission > 99 ? 99 + "+" : survey._count.submission}
                                         </td>
                                         <td className='md:text-center md:w-[170px] md:pl-[28px]
-                                            w-right px-[5px] py-[7px]'> {survey.isClosed ? 
+                                            w-[60px] text-left px-[5px] py-[7px]'> {survey.isClosed ? 
                                             <div className='text-[#FF0000]'>Closed</div> :
                                             <div className='text-[#00FF00]'>Open</div>
                                             }

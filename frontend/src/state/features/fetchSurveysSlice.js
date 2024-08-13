@@ -10,7 +10,7 @@ export const fetchAllSurveys = createAsyncThunk('allSurveys/fetchData', async ()
             method: 'GET',
             headers: {
                 'Content-Type': "application/json",
-                'Authorization': localStorage.getItem('token')
+                'Authorization': localStorage.getItem('queriousToken')
             }
         })
     
