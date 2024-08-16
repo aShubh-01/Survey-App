@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchAllSurveys } from '../../state/features/fetchSurveysSlice';
 import dashboardLogo from '../../assets/images/dashboardLogo.png';
@@ -9,6 +9,7 @@ import { useMediaQuery } from 'react-responsive';
 export default function DashboardComponent() {
     const navigate = useNavigate();
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
+    const [isSurveysFetched, setIsSurveysFetched] = useState(false);
 
     return (
         <div className='h-screen w-full bg-cover bg-center text-white'
@@ -21,11 +22,11 @@ export default function DashboardComponent() {
         <div className='flex justify-center'>
             <div className='grid md:grid-cols-2 md:gap-[50px] grid-cols-1'>
                 <div><ButtonComponent label="New Survey" onClickDo={() => navigate('/create')} icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="md:size-10 size-7"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>}/></div>
-                <div><ButtonComponent label="Unpublished" onClickDo={() => navigate('/unpublished')} icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="md:size-10 size-7"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" /></svg> } /></div>
+                <div className={`${isSurveysFetched ? 'pointer-events-auto' : 'pointer-events-none'}`}><ButtonComponent label="Unpublished" onClickDo={() => navigate('/unpublished')} icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="md:size-10 size-7"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" /></svg> } /></div>
             </div>
         </div>
         <div className='md:m-[50px] my-[60px] flex justify-center'>
-            <PublishedSurveysComponent isSmallScreen={isSmallScreen}/>
+            <PublishedSurveysComponent setIsSurveysFetched={setIsSurveysFetched} isSmallScreen={isSmallScreen}/>
         </div>
     </div>
     )
@@ -49,7 +50,7 @@ const ButtonComponent = ({label, icon, onClickDo}) => {
     </div>
 }
 
-const PublishedSurveysComponent = ({isSmallScreen}) => {
+const PublishedSurveysComponent = ({setIsSurveysFetched, isSmallScreen}) => {
     let key = 1;
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -61,7 +62,10 @@ const PublishedSurveysComponent = ({isSmallScreen}) => {
 
     if(loading) return <div>Loading</div>
     if(error) return <div>Unable to fetch published surveys</div>
+
+    setIsSurveysFetched(true);
     if(surveys.publishedSurveys.length < 1) return <div>You have not published any surveys yet</div>
+
 
     return <div className='md:text-[21px]'>
         <table className='md:w-[1000px] md:border-4 bg-black
