@@ -38,8 +38,8 @@ const Heading = () => {
 }
 
 const ButtonComponent = ({label, icon, onClickDo}) => {
-    return <div className='flex justify-center md:rounded-[20px]
-                m-[5px] bg-slate-300 rounded-[10px] bg-slate-900 shadow-md shadow-black'>
+    return <div className='flex justify-center md:rounded-[20px] md:shadow-md
+                m-[5px] bg-slate-300 rounded-[10px] bg-slate-900 shadow-sm shadow-black'>
         <button className='md:p-[40px] md:px-[60px] gap-[10px]
                 p-[10px] px-[85px] flex justify-center gap-[5px]' onClick={onClickDo}>
             <div>{icon}</div>

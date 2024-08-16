@@ -1,8 +1,10 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import allSurveyReducer from './features/fetchSurveysSlice';
+import allSurveyReducers from './features/fetchSurveysSlice';
+import surveyReducers from './features/surveySlice';
 
 const rootReducer = combineReducers({
-    allSurveys: allSurveyReducer
+    allSurveys: allSurveyReducers,
+    survey: surveyReducers
 })
 
 export const store = configureStore({

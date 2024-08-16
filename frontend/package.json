@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "lottie-web": "^5.12.2",
     "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.3",
     "lottie-web": "^5.12.2",
@@ -19,7 +18,8 @@
     "react-redux": "^9.1.2",
     "react-responsive": "^10.0.0",
     "react-router-dom": "^6.25.1",
-    "redux": "^5.0.1"
+    "redux": "^5.0.1",
+    "shadcn-ui": "^0.8.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

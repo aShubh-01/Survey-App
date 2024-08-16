@@ -1,14 +1,21 @@
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useMediaQuery } from 'react-responsive';
+import { useNavigate } from 'react-router-dom';
+import { initiateSurvey } from '../../state/features/surveySlice';
 import unpublishedSurveysBackground from '../../assets/images/unpublishedSurveysBackground.png'
 
 export default function UnpublishedSurveysComponent(){
     let key = 1;
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
     const { data: { unpublishedSurveys: surveys} } = useSelector((state) => state.allSurveys);
-    console.log(surveys);
-
-    if(surveys.length < 1) return <div className='h-screen flex justify-center'>
+   
+    if(surveys.length < 1) return <div className='h-screen flex justify-center'
+        style={{
+            backgroundSize: isSmallScreen ? '500px' : `1000px`,
+            backgroundImage: `url(${unpublishedSurveysBackground})`
+        }}>
         You dont have any unpublished surveys
     </div>
 
@@ -22,9 +29,21 @@ export default function UnpublishedSurveysComponent(){
                 <div className='h-screen overflow-y-auto bg-slate-400 my-4 p-4 px-2 rounded-md shadow-lg shadow-black'>
                     {
                         surveys.map((survey) => {
-                            return <div key={key++} className='md:m-2 m-[7px] shadow-md
-                                tranform transition-transform duration-300 hover:translate-y-[-3px]'>
-                                <SurveyCardComponent isSmallScreen={isSmallScreen} title={survey.surveyTitle} description={survey.description || false} questions={survey._count.questions}/>
+                            function insertSurvey(){
+                                dispatch(initiateSurvey(survey))
+                                navigate('/create')
+                            }
+
+                            return <div key={key++} className='md:m-2 md:hover:translate-y-[-10px] 
+                                m-[7px] shadow-md
+                                tranform transition-transform duration-200 hover:translate-y-[-3px]'>
+                                <SurveyCardComponent
+                                    isSmallScreen={isSmallScreen}
+                                    title={survey.surveyTitle} 
+                                    description={survey.description || false} 
+                                    questions={survey._count.questions}
+                                    onClickDo={insertSurvey}
+                                />
                             </div>
                         })
                     }
