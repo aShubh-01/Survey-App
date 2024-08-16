@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 
-const initialSurveyState = {
+const initialState = {
     survey: {
         id: 0,
         surveyTitle: 'Untitled Survey',
@@ -8,7 +9,7 @@ const initialSurveyState = {
         questions: [{
             id: 0,
             questionLabel: 'Question Label',
-            type: 'Multiple Choice',
+            type: 'Single Choice',
             isRequired: false,
             options: [{
                 id: 0,
@@ -20,12 +21,16 @@ const initialSurveyState = {
 
 export const surveySlice = createSlice({
     name: 'survey',
-    initialSurveyState,
+    initialState,
     reducers: {
-        addSurvey: (state, action) => {
-
+        initiateSurvey: (state, action) => {
+            state.survey = action.payload
+        },
+        updateTitle: (state, action) => {
+            state.survey.title = action.payload.title;
         }
     }
 })
 
+export const { initiateSurvey } = surveySlice.actions
 export default surveySlice.reducer;
