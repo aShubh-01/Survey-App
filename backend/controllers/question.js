@@ -2,10 +2,12 @@ const { prisma } = require('../config');
 const { questionSchema } = require('../schemas/surveySchema');
 
 const createQuestion = async (req, res) => {
-    const { surveyId, questionLabel, type } = req.body;
+    const { surveyId, questionLabel, type} = req.body;
+    console.log(req.body);
 
     const parseResponse = questionSchema.safeParse(req.body);
     if(!parseResponse.success) {
+        console.log(parseResponse.error.issues)
         return res.status(500).json({
             message: "Invalid question schema",
             issues: parseResponse.error.issues

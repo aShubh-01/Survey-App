@@ -64,7 +64,7 @@ model Question {
   survey Survey @relation(fields: [surveyId], references: [id])
   id Int @id @default(autoincrement())
   questionLabel String
-  type QuestionType
+  type QuestionType @default(SINGLE_SELECT)
   attempts Int @default(0)
   isRequired Boolean @default(false)
   isDeleted Boolean @default(false)

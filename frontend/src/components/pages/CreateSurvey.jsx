@@ -1,19 +1,19 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useMediaQuery } from 'react-responsive';
-import { setFocus, setQuestionFocusesState } from '../../state/features/activeQuestionSlice';
+import { addQuestionAsync, setFocus, setQuestionFocusesState } from '../../state/features/surveySlice';
 
 export default function CreateSurveyComponent() {
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
     const { survey } = useSelector(state => state.survey)
 
-    useEffect(() => console.log(survey), [survey]);
+    //useEffect(() => console.log(survey), [survey]);
 
     return (
         <>
-            <div className='flex justify-center bg-slate-600'>
-                <div className='md:p-6
-                        m-2 p-2 rounded-md md:w-[800px] w-[300px] bg-slate-500'>
+            <div className='flex justify-center min-h-screen bg-slate-600'>
+                    <div className='md:p-6
+                        m-2 mt-4 p-3 rounded-md md:w-[800px] w-[315px] bg-slate-500'>
                     <TitleCardComponent id={survey.id} title={survey.surveyTitle} description={survey.description} />
                     <QuestionsComponent questions={survey.questions} />
                     <FooterComponent />
@@ -28,7 +28,7 @@ const TitleCardComponent = ({id, title, description}) => {
     const [currentDesc, setCurrentDesc] = useState(description);
 
     return <div className='mb-2 md:text-[25px]'>
-        <div className='p-2 bg-slate-300 rounded-md grid gap-2'>
+        <div className='p-2 bg-white rounded-md grid gap-2'>
             <span>
                 <input type='text' value={currentTitle}
                     className='md:w-[450px] md:pl-[5px]
@@ -39,7 +39,7 @@ const TitleCardComponent = ({id, title, description}) => {
                 />
             </span>
             <span>
-                <input type='text' value={currentDesc}
+                <input type='text' value={currentDesc} placeholder='Description'
                     className='md:pl-[5px] md:w-[670px] md:text-[20px]
                         pl-[2px] w-[270px] border-black border-b-[1px] focus:outline-none'
                     onChange={(event) => {
@@ -53,22 +53,58 @@ const TitleCardComponent = ({id, title, description}) => {
 
 const QuestionsComponent = ({questions}) => {
     const dispatch = useDispatch();
-    const { questionFocuses } = useSelector((state) => state.questionFocuses);
 
     useEffect(() => {
-        const questionFocuses = questions.map((q) => {
-            return {id: q.id, isFocused: false}
-        })
-        dispatch(setQuestionFocusesState(questionFocuses))
-    }, [])
-
-    console.log(questionFocuses);
+        dispatch(setQuestionFocusesState())
+    }, []);
 
     const questionTypeOptions = [
         {value: "SINGLE_SELECT", label: "Multiple Choice"},
         {value: "MULTIPLE_SELECT", label: "Check Boxes"},
         {value: "TEXT", label: "Text Response"}
     ]
+
+    const QuestionComponent = ({question}) => {
+        const [currentQuestion, setCurrentQuestion] = useState(question.questionLabel);
+        let isFocused = question.isFocused;
+
+        return <div onClick={() => {
+            if(isFocused === false) dispatch(setFocus(question.id))
+        }}>
+            <div>
+                <div className='flex justify-between gap-[6px]'>
+                    <span className=''>
+                        <input type='text' value={currentQuestion}
+                            className={`${isFocused ? 'w-[160px] md:w-[500px]' : 'w-[265px] md:w-[725px]'}
+                                md:pl-2 md:text-[20px] 
+                                pl-[2px] mt-[2px] text-[15px]  focus:outline-none border-black border-b-[1px]`}
+                            onChange={(event) => setCurrentQuestion(event.target.value)}
+                        />
+                    </span>
+                    <span className={`${isFocused ? 'block' : 'hidden'}
+                    md:text-[20px] text-[12px]`}>
+                       <SelectQuestionTypeComponent currentQuestionType={question.type}/>
+                    </span>
+                </div>
+                <div>
+                    {question.type !== 'TEXT' &&
+                        <OptionsComponent type={question.type} options={question.options} isFocused={isFocused}/>
+                    }
+                    {question.type === 'TEXT' &&
+                        <div className='md:text-[20px]
+                            text-gray-700 mt-2 mx-2'>
+                            Text Response
+                            <hr className='md:w-[710px] mt-2 border-gray-500 w-[250px] border-1px'/>
+                        </div>
+                    }
+                </div>
+                <div className={`${isFocused ? 'block' : 'hidden'}`}>
+                    <QuestionFootComponent currentIsRequired={question.isRequired}/>
+                </div>
+                <hr className='md:my-4 my-2 border-black border-1'/>
+            </div>
+        </div>
+    }
 
     const SelectQuestionTypeComponent = ({currentQuestionType}) => {
         const [selectedQuestionTypeValue, setCurrentQuestionTypeValue] = useState(currentQuestionType);
@@ -119,18 +155,26 @@ const QuestionsComponent = ({questions}) => {
                 {
                     options.map((option) => {
                         const [currentOptionLabel, setCurrentOptionLabel] = useState(option.optionLabel);
+                        
                         return <div key={option.id} className='md:text-[22px]
                                     m-[1px] flex justify-start gap-[1px]'>
                             <div className='md:pt-[4px] pt-[3px]'>
                                 { icon }
                             </div>
-                            <div>
-                                <input className={`md:w-[650px] focus:outline-none focus:border-b-[1px] hover:${isFocused ? 'border-b-[1px]' : ''}
+                            <div className='flex justify-start'>
+                                <input className={`md:w-[605px]
+                                    focus:outline-none  focus:border-b-[1px] ${isFocused ? `hover:border-b-[1px]` : `border-[0px]`}
                                     pl-1 w-[200px] border-black`}
                                     type='text' value={currentOptionLabel} onChange={(e) => {
                                         setCurrentOptionLabel(e.target.value)
                                     }}
                                 />
+                                <button className={`${isFocused ? 'block' : 'hidden'}`}>
+                                    <svg className={`rounded-lg hover:bg-red-500 hover:text-white
+                                        p-1 md:size-8 size-6`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     })
@@ -186,7 +230,7 @@ const QuestionsComponent = ({questions}) => {
                 </div>
                 <button>
                     <svg className="md:size-10 
-                        p-1 rounded-md hover:bg-red-500 hover:text-white size-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                        p-1 rounded-md hover:bg-red-500  hover:text-white size-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                     </svg>
                 </button>
@@ -194,17 +238,23 @@ const QuestionsComponent = ({questions}) => {
     }
 
     const AddQuestionComponent = () => {
+        const [actionDispatched, setActionDispatched] = useState(false);
+        function addQuestionMethod() {
+            dispatch(addQuestionAsync());
+        }
 
         return <div className='md:mb-1'>    
             <button className='md:py-[12px] md:ml-[8px] md:px-[257px]
-                flex justify-between ml-1 py-[3px] px-[65px] gap-2 rounded-md border-black border-[1px]'>
+                flex justify-between ml-1 py-[3px] px-[65px] gap-2 rounded-md border-black border-[1px]'
+                onClick={addQuestionMethod}
+            >
                 <div className='pt-1'>
                     <svg className="size-4 md:size-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                 </div>
                 <span className='md:text-[25px]'>
-                    New Question
+                    {actionDispatched ? 'Loading' : 'New Question'}
                 </span>
             </button>
         </div>  
@@ -213,57 +263,11 @@ const QuestionsComponent = ({questions}) => {
     return <div className='my-1 p-2 rounded-md bg-white'>
         <div>
             {questions.map((question) => {
-                const [currentQuestion, setCurrentQuestion] = useState(question.questionLabel);
-                const [isFocused, setIsFocused] = useState();
-
-                useEffect(() => {
-                    questionFocuses.forEach((q) => {
-                        if(q.id === question.id) setIsFocused(q.isFocused)
-                    })
-                }, [questionFocuses])
-
-                console.log(isFocused);
-
-                return <div key={question.id} onClick={() => {
-                    if(isFocused === false) dispatch(setFocus(question.id))
-                }}>
-                    <div>
-                        <div className='flex justify-between gap-[6px]'>
-                            <span className=''>
-                                <input type='text' value={currentQuestion}
-                                    className={`${isFocused ? 'w-[160px] md:w-[500px]' : 'w-[265px] md:w-[725px]'}
-                                        md:pl-2 md:text-[20px] 
-                                        pl-[2px] mt-[2px] text-[15px]  focus:outline-none border-black border-b-[1px]`}
-                                    onChange={(event) => setCurrentQuestion(event.target.value)}
-                                />
-                            </span>
-                            <span className={`${isFocused ? 'block' : 'hidden'}
-                            md:text-[20px] text-[12px]`}>
-                               <SelectQuestionTypeComponent currentQuestionType={question.type}/>
-                            </span>
-                        </div>
-                        <div>
-                            {question.type !== 'TEXT' &&
-                                <OptionsComponent type={question.type} options={question.options} isFocused={isFocused}/>
-                            }
-                            {question.type === 'TEXT' &&
-                                <div className='md:text-[20px]
-                                    text-gray-700 mt-2 mx-2'>
-                                    Text Response
-                                    <hr className='md:w-[710px] mt-2 border-gray-500 w-[250px] border-1px'/>
-                                </div>
-                            }
-                        </div>
-                        <div className={`${isFocused ? 'block' : 'hidden'}`}>
-                            <QuestionFootComponent currentIsRequired={question.isRequired}/>
-                        </div>
-                        <hr className='md:my-4 my-2 border-black border-1'/>
-                    </div>
-                </div>
+                return <QuestionComponent key={question.id} question={question} />
             })
         }
-    </div>
-    <AddQuestionComponent />
+        </div>
+        <AddQuestionComponent />
     </div>
 }
 

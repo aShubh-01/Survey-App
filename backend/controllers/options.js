@@ -3,6 +3,7 @@ const { optionSchema } = require('../schemas/surveySchema');
 
 const createOption = async (req, res) => {
     
+    console.log(req.body);
     const parseResponse = optionSchema.safeParse(req.body);
     if(!parseResponse.success){
         return res.status(500).json({
