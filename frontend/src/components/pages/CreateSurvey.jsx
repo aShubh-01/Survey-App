@@ -1,49 +1,53 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import axios from 'axios';
+import { backendUrl } from '../../config';
 import { useMediaQuery } from 'react-responsive';
-import { addQuestionAsync, setFocus, setQuestionFocusesState } from '../../state/features/surveySlice';
+import { setTitle, deleteQuestion, setQuestionFocusesState, setFocus, 
+    setQuesionLabel, setQuestionType, setOptionLabel, deleteOption, 
+    setDescription, addQuestionAsync} from '../../state/features/surveySlice';
+import useDebouncedCallback from '../../state/customHooks/debounceCallback';
 
 export default function CreateSurveyComponent() {
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
+    const dispatch = useDispatch();
     const { survey } = useSelector(state => state.survey)
 
-    //useEffect(() => console.log(survey), [survey]);
+    useEffect(() => console.log(survey), [survey]);
 
     return (
         <>
             <div className='flex justify-center min-h-screen bg-slate-600'>
                     <div className='md:p-6
                         m-2 mt-4 p-3 rounded-md md:w-[800px] w-[315px] bg-slate-500'>
-                    <TitleCardComponent id={survey.id} title={survey.surveyTitle} description={survey.description} />
-                    <QuestionsComponent questions={survey.questions} />
-                    <FooterComponent />
+                    <TitleCardComponent dispatch = {dispatch} title={survey.surveyTitle} description={survey.description} />
+                    <QuestionsComponent dispatch = {dispatch} questions={survey.questions} />
+                    <FooterComponent dispatch = {dispatch}/>
                 </div>
             </div>
         </>
     )
 }
 
-const TitleCardComponent = ({id, title, description}) => {
-    const [currentTitle, setCurrentTitle] = useState(title);
-    const [currentDesc, setCurrentDesc] = useState(description);
+const TitleCardComponent = ({dispatch, title, description}) => {
 
     return <div className='mb-2 md:text-[25px]'>
         <div className='p-2 bg-white rounded-md grid gap-2'>
             <span>
-                <input type='text' value={currentTitle}
+                <input type='text' value={title} placeholder='Title'
                     className='md:w-[450px] md:pl-[5px]
                         pl-[2px] w-[200px] focus:outline-none border-black border-b-[1px]'
                     onChange={(event) => {
-                        setCurrentTitle(event.target.value)
+                        dispatch(setTitle(event.target.value))
                     }}
                 />
             </span>
             <span>
-                <input type='text' value={currentDesc} placeholder='Description'
+                <input type='text' value={description} placeholder='Description'
                     className='md:pl-[5px] md:w-[670px] md:text-[20px]
                         pl-[2px] w-[270px] border-black border-b-[1px] focus:outline-none'
                     onChange={(event) => {
-                        setCurrentDesc(event.target.value)
+                        dispatch(setDescription(event.target.value))
                     }}
                 />
             </span>
@@ -51,8 +55,7 @@ const TitleCardComponent = ({id, title, description}) => {
     </div>
 }
 
-const QuestionsComponent = ({questions}) => {
-    const dispatch = useDispatch();
+const QuestionsComponent = ({dispatch, questions}) => {
 
     useEffect(() => {
         dispatch(setQuestionFocusesState())
@@ -64,9 +67,27 @@ const QuestionsComponent = ({questions}) => {
         {value: "TEXT", label: "Text Response"}
     ]
 
-    const QuestionComponent = ({question}) => {
-        const [currentQuestion, setCurrentQuestion] = useState(question.questionLabel);
-        let isFocused = question.isFocused;
+    const QuestionComponent = ({question, dispatch, isFocused}) => {
+        const [currentQuestionLabel, setCurrentQuestionLabel] = useState(question.questionLabel);
+
+        const updateStateBackend = useDebouncedCallback((id, questionLabel) => {
+            axios({
+                url: `${backendUrl}/questions/${id}`,
+                method: 'PUT',
+                headers: {
+                    'Content-Type': "application/json",
+                    'Authorization': localStorage.getItem('queriousToken')
+                },
+                data: {
+                    questionLabel
+                }
+            }).then(() => {
+                dispatch(setQuesionLabel({ id, questionLabel }));
+            }).catch((err) => {
+                console.log(err);
+                alert('Failed to update state/backend')
+            });
+        }, 2500)
 
         return <div onClick={() => {
             if(isFocused === false) dispatch(setFocus(question.id))
@@ -74,21 +95,24 @@ const QuestionsComponent = ({questions}) => {
             <div>
                 <div className='flex justify-between gap-[6px]'>
                     <span className=''>
-                        <input type='text' value={currentQuestion}
+                        <input type='text' value={currentQuestionLabel}
                             className={`${isFocused ? 'w-[160px] md:w-[500px]' : 'w-[265px] md:w-[725px]'}
                                 md:pl-2 md:text-[20px] 
                                 pl-[2px] mt-[2px] text-[15px]  focus:outline-none border-black border-b-[1px]`}
-                            onChange={(event) => setCurrentQuestion(event.target.value)}
+                            onChange={(event) => {
+                                setCurrentQuestionLabel(event.target.value);
+                                updateStateBackend(question.id, event.target.value);
+                            }}
                         />
                     </span>
                     <span className={`${isFocused ? 'block' : 'hidden'}
                     md:text-[20px] text-[12px]`}>
-                       <SelectQuestionTypeComponent currentQuestionType={question.type}/>
+                       <SelectQuestionTypeComponent questionId={question.id} currentQuestionType={question.type}/>
                     </span>
                 </div>
                 <div>
                     {question.type !== 'TEXT' &&
-                        <OptionsComponent type={question.type} options={question.options} isFocused={isFocused}/>
+                        <OptionsComponent questionId={question.id} type={question.type} options={question.options} isFocused={isFocused}/>
                     }
                     {question.type === 'TEXT' &&
                         <div className='md:text-[20px]
@@ -106,8 +130,26 @@ const QuestionsComponent = ({questions}) => {
         </div>
     }
 
-    const SelectQuestionTypeComponent = ({currentQuestionType}) => {
+    const SelectQuestionTypeComponent = ({questionId, currentQuestionType}) => {
         const [selectedQuestionTypeValue, setCurrentQuestionTypeValue] = useState(currentQuestionType);
+
+        const updateQuestionTypeBackend = useDebouncedCallback((questionId, type) => {
+            dispatch(setQuestionType({id: questionId, type: type}))
+            axios({
+                url: `${backendUrl}/questions/${questionId}`,
+                method: 'PUT',
+                headers: {
+                    'Authorization': localStorage.getItem('queriousToken'),
+                    'Content-Type': "application/json"
+                },
+                data: {
+                    type
+                }
+            }).catch((err) => {
+                console.log(err);
+                alert('Unable to update question type')
+            })
+        }, 0)
 
         const selectedQuestionTypeLabel = useMemo(() => {
             switch(selectedQuestionTypeValue) {
@@ -125,6 +167,7 @@ const QuestionsComponent = ({questions}) => {
                     questionTypeOptions.forEach((questionType) => {
                         if(questionType.label === event.target.value) {
                             setCurrentQuestionTypeValue(questionType.value)
+                            updateQuestionTypeBackend(questionId, questionType.value);
                         }
                     })
                 }}
@@ -140,7 +183,49 @@ const QuestionsComponent = ({questions}) => {
         </div>
     }
 
-    const OptionsComponent = ({type, options, isFocused}) => {
+    const OptionComponent = ({dispatch, questionId, icon, option, isFocused}) => {
+        const [currentOptionLabel, setCurrentOptionLabel] = useState(option.optionLabel);
+
+        const updateOptionStateBackend = useDebouncedCallback((id, optionLabel) => {
+            dispatch(setOptionLabel({questionId, id, optionLabel}));
+            axios({
+                url: `${backendUrl}/options/${id}`,
+                method: 'PUT',
+                headers: {
+                    'Content-Type': "application/json",
+                    'Authorization': localStorage.getItem('queriousToken')
+                },
+                data: {
+                    optionLabel
+                }
+            })
+        }, 2500);
+
+        return <div className='md:text-[22px]
+                m-[1px] flex justify-start gap-[1px]'>
+            <div className='md:pt-[4px] pt-[3px]'>
+                { icon }
+            </div>
+            <div className='flex justify-start'>
+                <input className={`md:w-[605px]
+                    focus:outline-none  focus:border-b-[1px] ${isFocused ? `hover:border-b-[1px]` : `border-[0px]`}
+                    pl-1 w-[200px] border-black`}
+                    type='text' value={currentOptionLabel} onChange={(e) => {
+                        setCurrentOptionLabel(e.target.value)
+                        updateOptionStateBackend(option.id, e.target.value)
+                    }}
+                />
+                <button className={`${isFocused ? 'block' : 'hidden'}`}>
+                    <svg className={`rounded-lg hover:bg-red-500 hover:text-white
+                        p-1 md:size-8 size-6`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    }
+
+    const OptionsComponent = ({questionId, type, options, isFocused}) => {
         let icon;
         switch (type) {
             case 'SINGLE_SELECT': icon =  <svg className='md:size-6 size-4' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fillRule="evenodd" clipRule="evenodd" d="M12 19.5C16.1421 19.5 19.5 16.1421 19.5 12C19.5 7.85786 16.1421 4.5 12 4.5C7.85786 4.5 4.5 7.85786 4.5 12C4.5 16.1421 7.85786 19.5 12 19.5ZM12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" fill="#080341"></path> </g></svg>
@@ -154,28 +239,8 @@ const QuestionsComponent = ({questions}) => {
             <div>
                 {
                     options.map((option) => {
-                        const [currentOptionLabel, setCurrentOptionLabel] = useState(option.optionLabel);
-                        
-                        return <div key={option.id} className='md:text-[22px]
-                                    m-[1px] flex justify-start gap-[1px]'>
-                            <div className='md:pt-[4px] pt-[3px]'>
-                                { icon }
-                            </div>
-                            <div className='flex justify-start'>
-                                <input className={`md:w-[605px]
-                                    focus:outline-none  focus:border-b-[1px] ${isFocused ? `hover:border-b-[1px]` : `border-[0px]`}
-                                    pl-1 w-[200px] border-black`}
-                                    type='text' value={currentOptionLabel} onChange={(e) => {
-                                        setCurrentOptionLabel(e.target.value)
-                                    }}
-                                />
-                                <button className={`${isFocused ? 'block' : 'hidden'}`}>
-                                    <svg className={`rounded-lg hover:bg-red-500 hover:text-white
-                                        p-1 md:size-8 size-6`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
+                        return <div key={option.id}>
+                            <OptionComponent questionId={questionId} dispatch={dispatch} icon={icon} option={option} isFocused={isFocused}/>
                         </div>
                     })
                 }
@@ -263,7 +328,7 @@ const QuestionsComponent = ({questions}) => {
     return <div className='my-1 p-2 rounded-md bg-white'>
         <div>
             {questions.map((question) => {
-                return <QuestionComponent key={question.id} question={question} />
+                return <QuestionComponent key={question.id} question={question} dispatch={dispatch} isFocused={question.isFocused}/>
             })
         }
         </div>
