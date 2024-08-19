@@ -5,7 +5,7 @@ import { backendUrl } from '../../config';
 import { useMediaQuery } from 'react-responsive';
 import { setTitle, deleteQuestion, setQuestionFocusesState, setFocus, 
     setQuesionLabel, setQuestionType, setOptionLabel, deleteOption, 
-    setDescription, addQuestionAsync} from '../../state/features/surveySlice';
+    setDescription, addOptionAsync, addQuestionAsync, toggleRequirementAsync} from '../../state/features/surveySlice';
 import useDebouncedCallback from '../../state/customHooks/debounceCallback';
 
 export default function CreateSurveyComponent() {
@@ -20,8 +20,8 @@ export default function CreateSurveyComponent() {
             <div className='flex justify-center min-h-screen bg-slate-600'>
                     <div className='md:p-6
                         m-2 mt-4 p-3 rounded-md md:w-[800px] w-[315px] bg-slate-500'>
-                    <TitleCardComponent dispatch = {dispatch} title={survey.surveyTitle} description={survey.description} />
-                    <QuestionsComponent dispatch = {dispatch} questions={survey.questions} />
+                    <TitleCardComponent />
+                    <QuestionsComponent />
                     <FooterComponent dispatch = {dispatch}/>
                 </div>
             </div>
@@ -29,7 +29,11 @@ export default function CreateSurveyComponent() {
     )
 }
 
-const TitleCardComponent = ({dispatch, title, description}) => {
+const TitleCardComponent = () => {
+    const dispatch = useDispatch();
+    const { title, description } = useSelector(state => {
+        return { title: state.survey.survey.surveyTitle, description: state.survey.survey.description}
+    });
 
     return <div className='mb-2 md:text-[25px]'>
         <div className='p-2 bg-white rounded-md grid gap-2'>
@@ -55,7 +59,11 @@ const TitleCardComponent = ({dispatch, title, description}) => {
     </div>
 }
 
-const QuestionsComponent = ({dispatch, questions}) => {
+const QuestionsComponent = () => {
+    const dispatch = useDispatch();
+    const questions = useSelector(state => {
+        return state.survey.survey.questions;
+    })
 
     useEffect(() => {
         dispatch(setQuestionFocusesState())
@@ -67,10 +75,12 @@ const QuestionsComponent = ({dispatch, questions}) => {
         {value: "TEXT", label: "Text Response"}
     ]
 
-    const QuestionComponent = ({question, dispatch, isFocused}) => {
+    const QuestionComponent = ({question}) => {
+        const dispatch = useDispatch();
         const [currentQuestionLabel, setCurrentQuestionLabel] = useState(question.questionLabel);
 
-        const updateStateBackend = useDebouncedCallback((id, questionLabel) => {
+        const updateQuestionStateBackend = useDebouncedCallback((id, questionLabel) => {
+            dispatch(setQuesionLabel({ id, questionLabel }));
             axios({
                 url: `${backendUrl}/questions/${id}`,
                 method: 'PUT',
@@ -81,38 +91,36 @@ const QuestionsComponent = ({dispatch, questions}) => {
                 data: {
                     questionLabel
                 }
-            }).then(() => {
-                dispatch(setQuesionLabel({ id, questionLabel }));
             }).catch((err) => {
                 console.log(err);
                 alert('Failed to update state/backend')
             });
-        }, 2500)
+        }, 1500)
 
         return <div onClick={() => {
-            if(isFocused === false) dispatch(setFocus(question.id))
+            if(question.isFocused === false) dispatch(setFocus(question.id))
         }}>
             <div>
                 <div className='flex justify-between gap-[6px]'>
                     <span className=''>
                         <input type='text' value={currentQuestionLabel}
-                            className={`${isFocused ? 'w-[160px] md:w-[500px]' : 'w-[265px] md:w-[725px]'}
+                            className={`${question.isFocused ? 'w-[160px] md:w-[500px]' : 'w-[265px] md:w-[725px]'}
                                 md:pl-2 md:text-[20px] 
                                 pl-[2px] mt-[2px] text-[15px]  focus:outline-none border-black border-b-[1px]`}
                             onChange={(event) => {
                                 setCurrentQuestionLabel(event.target.value);
-                                updateStateBackend(question.id, event.target.value);
+                                updateQuestionStateBackend(question.id, event.target.value);
                             }}
                         />
                     </span>
-                    <span className={`${isFocused ? 'block' : 'hidden'}
+                    <span className={`${question.isFocused ? 'block' : 'hidden'}
                     md:text-[20px] text-[12px]`}>
                        <SelectQuestionTypeComponent questionId={question.id} currentQuestionType={question.type}/>
                     </span>
                 </div>
                 <div>
                     {question.type !== 'TEXT' &&
-                        <OptionsComponent questionId={question.id} type={question.type} options={question.options} isFocused={isFocused}/>
+                        <OptionsComponent questionId={question.id} options={question.options} type={question.type} isFocused={question.isFocused}/>
                     }
                     {question.type === 'TEXT' &&
                         <div className='md:text-[20px]
@@ -122,8 +130,8 @@ const QuestionsComponent = ({dispatch, questions}) => {
                         </div>
                     }
                 </div>
-                <div className={`${isFocused ? 'block' : 'hidden'}`}>
-                    <QuestionFootComponent currentIsRequired={question.isRequired}/>
+                <div className={`${question.isFocused ? 'block' : 'hidden'}`}>
+                    <QuestionFootComponent questionId={question.id} currentIsRequired={question.isRequired}/>
                 </div>
                 <hr className='md:my-4 my-2 border-black border-1'/>
             </div>
@@ -183,13 +191,26 @@ const QuestionsComponent = ({dispatch, questions}) => {
         </div>
     }
 
-    const OptionComponent = ({dispatch, questionId, icon, option, isFocused}) => {
+    const OptionComponent = ({questionId, option, icon, isFocused}) => {
+        const dispatch = useDispatch();
         const [currentOptionLabel, setCurrentOptionLabel] = useState(option.optionLabel);
 
-        const updateOptionStateBackend = useDebouncedCallback((id, optionLabel) => {
-            dispatch(setOptionLabel({questionId, id, optionLabel}));
+        const deleteOptionStateBackend = useDebouncedCallback((questionId,optionId) => {
+            dispatch(deleteOption({questionId, optionId}));
             axios({
-                url: `${backendUrl}/options/${id}`,
+                url: `${backendUrl}/options/${optionId}`,
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': "application/json",
+                    'Authorization': localStorage.getItem('queriousToken')
+                }
+            })
+        }, 0)
+
+        const updateOptionStateBackend = useDebouncedCallback((questionId, optionId, optionLabel) => {
+            dispatch(setOptionLabel({questionId, optionId, optionLabel}));
+            axios({
+                url: `${backendUrl}/options/${optionId}`,
                 method: 'PUT',
                 headers: {
                     'Content-Type': "application/json",
@@ -199,7 +220,7 @@ const QuestionsComponent = ({dispatch, questions}) => {
                     optionLabel
                 }
             })
-        }, 2500);
+        }, 1200);
 
         return <div className='md:text-[22px]
                 m-[1px] flex justify-start gap-[1px]'>
@@ -212,10 +233,11 @@ const QuestionsComponent = ({dispatch, questions}) => {
                     pl-1 w-[200px] border-black`}
                     type='text' value={currentOptionLabel} onChange={(e) => {
                         setCurrentOptionLabel(e.target.value)
-                        updateOptionStateBackend(option.id, e.target.value)
+                        updateOptionStateBackend(questionId, option.id, e.target.value)
                     }}
                 />
-                <button className={`${isFocused ? 'block' : 'hidden'}`}>
+                <button className={isFocused ? 'block' : 'hidden'} 
+                    onClick={() => {deleteOptionStateBackend(questionId, option.id)}} >
                     <svg className={`rounded-lg hover:bg-red-500 hover:text-white
                         p-1 md:size-8 size-6`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -226,6 +248,8 @@ const QuestionsComponent = ({dispatch, questions}) => {
     }
 
     const OptionsComponent = ({questionId, type, options, isFocused}) => {
+        const dispatch = useDispatch();
+
         let icon;
         switch (type) {
             case 'SINGLE_SELECT': icon =  <svg className='md:size-6 size-4' viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fillRule="evenodd" clipRule="evenodd" d="M12 19.5C16.1421 19.5 19.5 16.1421 19.5 12C19.5 7.85786 16.1421 4.5 12 4.5C7.85786 4.5 4.5 7.85786 4.5 12C4.5 16.1421 7.85786 19.5 12 19.5ZM12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" fill="#080341"></path> </g></svg>
@@ -235,19 +259,25 @@ const QuestionsComponent = ({dispatch, questions}) => {
             break;
         }
 
+        function addOptionMethod() {
+            dispatch(addOptionAsync({id: questionId, optionLabel: 'Untitled Option'}))
+        }
+
         return <div className='py-1 text-[15px]'>
             <div>
                 {
                     options.map((option) => {
                         return <div key={option.id}>
-                            <OptionComponent questionId={questionId} dispatch={dispatch} icon={icon} option={option} isFocused={isFocused}/>
+                            <OptionComponent questionId={questionId} option={option} icon={icon} isFocused={isFocused}/>
                         </div>
                     })
                 }
             </div>
             <div className={`${isFocused ? 'block' : 'hidden'} md:p-1`}>
                 <button className='md:px-2 md:gap-1
-                    mt-2 px-1 flex justify-between gap-[1px] rounded-md border-black border-[2px]'>
+                    mt-2 px-1 flex justify-between gap-[1px] rounded-md border-black border-[2px]'
+                    onClick={addOptionMethod}
+                >
                     <div className='md:pt-[4px] pt-[2px]'>
                         <svg className="size-4 md:size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -261,11 +291,13 @@ const QuestionsComponent = ({dispatch, questions}) => {
         </div>
     }
 
-    const ToggleSwitchComponent = ({currentIsRequired}) => {
+    const ToggleSwitchComponent = ({questionId, currentIsRequired}) => {
+        const dispatch = useDispatch();
         const [isRequired, setIsRequired] = useState(currentIsRequired);
         
         const toggleIsRequired = () => {
             setIsRequired(!isRequired);
+            dispatch(toggleRequirementAsync({questionId}))
         }
 
         return <button onClick={toggleIsRequired}>
@@ -281,7 +313,19 @@ const QuestionsComponent = ({dispatch, questions}) => {
         </button>
     }
 
-    const QuestionFootComponent = ({currentIsRequired}) => {
+    const QuestionFootComponent = ({questionId, currentIsRequired}) => {
+
+        const deleteQuestionStateBackend = useDebouncedCallback((questionId) => {
+            dispatch(deleteQuestion({questionId}))
+            axios({
+                url: `${backendUrl}/questions/${questionId}`,
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': "application/json",
+                    'Authorization': localStorage.getItem('queriousToken')
+                }
+            })
+        }, 0)
 
         return <div className='flex justify-end md:gap-4 gap-2'>
                 <div className='md:text-[20px] md:pt-[15px] md:gap-2
@@ -290,10 +334,10 @@ const QuestionsComponent = ({dispatch, questions}) => {
                         Required
                     </span>
                     <div className='pt-[2px]'>
-                        <ToggleSwitchComponent currentIsRequired={currentIsRequired}/>
+                        <ToggleSwitchComponent questionId={questionId} currentIsRequired={currentIsRequired}/>
                     </div>
                 </div>
-                <button>
+                <button onClick={() => {deleteQuestionStateBackend(questionId)}}>
                     <svg className="md:size-10 
                         p-1 rounded-md hover:bg-red-500  hover:text-white size-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -303,9 +347,9 @@ const QuestionsComponent = ({dispatch, questions}) => {
     }
 
     const AddQuestionComponent = () => {
-        const [actionDispatched, setActionDispatched] = useState(false);
+        const { id } = useSelector(state => state.survey.survey);
         function addQuestionMethod() {
-            dispatch(addQuestionAsync());
+            dispatch(addQuestionAsync({surveyId: id, questionLabel: 'Untitled Question', questionType: 'SINGLE_SELECT', optionLabel: 'Untitled Option'}));
         }
 
         return <div className='md:mb-1'>    
@@ -319,7 +363,7 @@ const QuestionsComponent = ({dispatch, questions}) => {
                     </svg>
                 </div>
                 <span className='md:text-[25px]'>
-                    {actionDispatched ? 'Loading' : 'New Question'}
+                    New Question
                 </span>
             </button>
         </div>  
@@ -328,7 +372,7 @@ const QuestionsComponent = ({dispatch, questions}) => {
     return <div className='my-1 p-2 rounded-md bg-white'>
         <div>
             {questions.map((question) => {
-                return <QuestionComponent key={question.id} question={question} dispatch={dispatch} isFocused={question.isFocused}/>
+                return <QuestionComponent key={question.id} question={question}/>
             })
         }
         </div>

@@ -125,7 +125,7 @@ const toggleRequirement = async (req, res) => {
     try {
         const questionId = parseInt(req.params.id);
 
-        const newRequirement = await prisma.$transaction(async (prisma) => {
+        const updatedRequirement = await prisma.$transaction(async (prisma) => {
             const { isRequired } = await prisma.question.findUnique({
                 where: { id: questionId },
                 select: { isRequired: true }
@@ -142,7 +142,8 @@ const toggleRequirement = async (req, res) => {
         })
 
         return res.status(200).json({
-            message: `Question requirement changed to ${newRequirement}`
+            updatedRequirement,
+            message: `Question requirement changed to ${updatedRequirement}`
         });
 
     } catch (err) {
