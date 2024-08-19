@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { backendUrl } from '../../config';
 import { useMediaQuery } from 'react-responsive';
+import createSurveyBackgroundImage from '../../assets/images/createSurveyBackgroundImage.png';
 import { setTitle, deleteQuestion, setQuestionFocusesState, setFocus, 
     setQuesionLabel, setQuestionType, setOptionLabel, deleteOption, 
     setDescription, addOptionAsync, addQuestionAsync, toggleRequirementAsync} from '../../state/features/surveySlice';
@@ -12,16 +13,21 @@ export default function CreateSurveyComponent() {
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
     const dispatch = useDispatch();
     const { survey } = useSelector(state => state.survey)
+    const colourPalette = ['bg-[#FF007F]', 'bg-[#FFCBA4]', 'bg-white']
 
     useEffect(() => console.log(survey), [survey]);
 
     return (
         <>
-            <div className='flex justify-center min-h-screen bg-slate-600'>
-                    <div className='md:p-6
-                        m-2 mt-4 p-3 rounded-md md:w-[800px] w-[315px] bg-slate-500'>
-                    <TitleCardComponent />
-                    <QuestionsComponent />
+            <div style={{
+                backgroundSize: isSmallScreen ? '500px' : `1000px`,
+                backgroundImage: `url(${createSurveyBackgroundImage})`
+            }}
+                className={`flex justify-center min-h-screen ${colourPalette[0]}`}>
+                    <div className='md:p-4
+                        m-2 mt-4 p-3 rounded-md md:w-[800px] w-[315px] bg-white'>
+                    <TitleCardComponent bgColour={colourPalette[1]}/>
+                    <QuestionsComponent bgColour={colourPalette[1]} bgColour2={colourPalette[2]} />
                     <FooterComponent dispatch = {dispatch}/>
                 </div>
             </div>
@@ -29,37 +35,39 @@ export default function CreateSurveyComponent() {
     )
 }
 
-const TitleCardComponent = () => {
+const TitleCardComponent = ({bgColour}) => {
     const dispatch = useDispatch();
     const { title, description } = useSelector(state => {
         return { title: state.survey.survey.surveyTitle, description: state.survey.survey.description}
     });
 
     return <div className='mb-2 md:text-[25px]'>
-        <div className='p-2 bg-white rounded-md grid gap-2'>
+        <div className={`p-2 ${bgColour} rounded-md grid gap-2`}>
             <span>
                 <input type='text' value={title} placeholder='Title'
-                    className='md:w-[450px] md:pl-[5px]
-                        pl-[2px] w-[200px] focus:outline-none border-black border-b-[1px]'
+                    className={`md:w-[600px] md:pl-[5px] font-bold
+                        ${bgColour}
+                        pl-[2px] w-[210px] focus:outline-none border-black border-b-[1px]`}
                     onChange={(event) => {
                         dispatch(setTitle(event.target.value))
                     }}
                 />
             </span>
             <span>
-                <input type='text' value={description} placeholder='Description'
-                    className='md:pl-[5px] md:w-[670px] md:text-[20px]
-                        pl-[2px] w-[270px] border-black border-b-[1px] focus:outline-none'
+                <textarea rows="2" maxLength="500" value={description} placeholder='Description'
+                    className={`md:pl-[5px] md:w-[730px] md:text-[20px] font-semibold 
+                        ${bgColour}
+                        pl-[2px] w-[270px] border-black border-b-[1px] focus:outline-none`}
                     onChange={(event) => {
                         dispatch(setDescription(event.target.value))
                     }}
-                />
+                ></textarea>
             </span>
         </div>
     </div>
 }
 
-const QuestionsComponent = () => {
+const QuestionsComponent = ({bgColour, bgColour2}) => {
     const dispatch = useDispatch();
     const questions = useSelector(state => {
         return state.survey.survey.questions;
@@ -78,6 +86,7 @@ const QuestionsComponent = () => {
     const QuestionComponent = ({question}) => {
         const dispatch = useDispatch();
         const [currentQuestionLabel, setCurrentQuestionLabel] = useState(question.questionLabel);
+        const bgColour = '#F5DEB3'
 
         const updateQuestionStateBackend = useDebouncedCallback((id, questionLabel) => {
             dispatch(setQuesionLabel({ id, questionLabel }));
@@ -101,12 +110,12 @@ const QuestionsComponent = () => {
             if(question.isFocused === false) dispatch(setFocus(question.id))
         }}>
             <div>
-                <div className='flex justify-between gap-[6px]'>
+                <div className={`flex justify-between gap-[6px] py-[4px] px-[5px] mb-2 rounded-md ${bgColour2}`}>
                     <span className=''>
                         <input type='text' value={currentQuestionLabel}
-                            className={`${question.isFocused ? 'w-[160px] md:w-[500px]' : 'w-[265px] md:w-[725px]'}
-                                md:pl-2 md:text-[20px] 
-                                pl-[2px] mt-[2px] text-[15px]  focus:outline-none border-black border-b-[1px]`}
+                            className={`${question.isFocused ? 'w-[150px] md:w-[535px]' : 'w-[265px] md:w-[725px]'}
+                                md:pl-[3px] md:text-[20px] ${bgColour2} font-semibold
+                                pl-[1px] mt-[2px] text-[14px] focus:outline-none border-black border-b-[1px]`}
                             onChange={(event) => {
                                 setCurrentQuestionLabel(event.target.value);
                                 updateQuestionStateBackend(question.id, event.target.value);
@@ -115,16 +124,16 @@ const QuestionsComponent = () => {
                     </span>
                     <span className={`${question.isFocused ? 'block' : 'hidden'}
                     md:text-[20px] text-[12px]`}>
-                       <SelectQuestionTypeComponent questionId={question.id} currentQuestionType={question.type}/>
+                       <SelectQuestionTypeComponent questionId={question.id} currentQuestionType={question.type} bgColor={bgColour2}/>
                     </span>
                 </div>
                 <div>
                     {question.type !== 'TEXT' &&
-                        <OptionsComponent questionId={question.id} options={question.options} type={question.type} isFocused={question.isFocused}/>
+                        <OptionsComponent questionId={question.id} options={question.options} type={question.type} isFocused={question.isFocused} bgColour={bgColour2}/>
                     }
                     {question.type === 'TEXT' &&
                         <div className='md:text-[20px]
-                            text-gray-700 mt-2 mx-2'>
+                            text-gray-700 mt-2 mx-2 text-black font-mono'>
                             Text Response
                             <hr className='md:w-[710px] mt-2 border-gray-500 w-[250px] border-1px'/>
                         </div>
@@ -138,7 +147,7 @@ const QuestionsComponent = () => {
         </div>
     }
 
-    const SelectQuestionTypeComponent = ({questionId, currentQuestionType}) => {
+    const SelectQuestionTypeComponent = ({questionId, currentQuestionType, bgColor}) => {
         const [selectedQuestionTypeValue, setCurrentQuestionTypeValue] = useState(currentQuestionType);
 
         const updateQuestionTypeBackend = useDebouncedCallback((questionId, type) => {
@@ -168,8 +177,9 @@ const QuestionsComponent = () => {
         }, [selectedQuestionTypeValue])
     
         return <div>
-            <select className='md:rounded-md md:pt-[1px] md:border-2
-                rounded-sm bg-slate-200 border-black border-[1px] py-[3px] mt-[3px] text-center'
+            <select className={`md:rounded-md md:border-x-[2px] md:pt-[1px] md:px-2
+                ${bgColor} focus:outline-none
+                rounded-sm border-black border-x-[1px] py-[3px] mt-[3px] text-center`}
                 value={selectedQuestionTypeLabel}
                 onChange={(event) => {
                     questionTypeOptions.forEach((questionType) => {
@@ -191,7 +201,7 @@ const QuestionsComponent = () => {
         </div>
     }
 
-    const OptionComponent = ({questionId, option, icon, isFocused}) => {
+    const OptionComponent = ({questionId, option, icon, isFocused, bgColour}) => {
         const dispatch = useDispatch();
         const [currentOptionLabel, setCurrentOptionLabel] = useState(option.optionLabel);
 
@@ -222,13 +232,13 @@ const QuestionsComponent = () => {
             })
         }, 1200);
 
-        return <div className='md:text-[22px]
+        return <div className='md:text-[22px] 
                 m-[1px] flex justify-start gap-[1px]'>
             <div className='md:pt-[4px] pt-[3px]'>
                 { icon }
             </div>
             <div className='flex justify-start'>
-                <input className={`md:w-[605px]
+                <input className={`md:w-[605px] ${bgColour}
                     focus:outline-none  focus:border-b-[1px] ${isFocused ? `hover:border-b-[1px]` : `border-[0px]`}
                     pl-1 w-[200px] border-black`}
                     type='text' value={currentOptionLabel} onChange={(e) => {
@@ -247,7 +257,7 @@ const QuestionsComponent = () => {
         </div>
     }
 
-    const OptionsComponent = ({questionId, type, options, isFocused}) => {
+    const OptionsComponent = ({questionId, type, options, isFocused, bgColour}) => {
         const dispatch = useDispatch();
 
         let icon;
@@ -263,19 +273,19 @@ const QuestionsComponent = () => {
             dispatch(addOptionAsync({id: questionId, optionLabel: 'Untitled Option'}))
         }
 
-        return <div className='py-1 text-[15px]'>
+        return <div className={`py-1 px-2 pb-2 text-[15px] ${bgColour} rounded-lg`}>
             <div>
                 {
                     options.map((option) => {
                         return <div key={option.id}>
-                            <OptionComponent questionId={questionId} option={option} icon={icon} isFocused={isFocused}/>
+                            <OptionComponent questionId={questionId} option={option} icon={icon} isFocused={isFocused} bgColour={bgColour}/>
                         </div>
                     })
                 }
             </div>
             <div className={`${isFocused ? 'block' : 'hidden'} md:p-1`}>
-                <button className='md:px-2 md:gap-1
-                    mt-2 px-1 flex justify-between gap-[1px] rounded-md border-black border-[2px]'
+                <button className='md:px-2 md:gap-1 md:border-[2px]
+                    mt-2 px-1 flex justify-between gap-[1px] rounded-md border-black border-[1px]'
                     onClick={addOptionMethod}
                 >
                     <div className='md:pt-[4px] pt-[2px]'>
@@ -303,17 +313,17 @@ const QuestionsComponent = () => {
         return <button onClick={toggleIsRequired}>
             <div className={`md:w-14 md:h-6
                 w-10 h-4 flex items-center border-black border-[1px] rounded-full p-1
-                transition duration-300 ${isRequired ? 'bg-gray-200' : 'bg-gray-700'}
+                transition duration-300 ${isRequired ? 'bg-black' : 'bg-white'}
             `}>
                 <div className={`md:w-[28px] md:h-[28px]
-                    w-[20px] h-[20px] rounded-full shadow-black shadow-sm transitions 
-                    transition-transform duraction-300 ${isRequired ? 'md:translate-x-[26px] translate-x-[15px] bg-gray-700' : 'translate-x-[-5px] bg-white'}`}>
+                    w-[20px] h-[20px] rounded-full transitions 
+                    transition-transform duraction-300 ${isRequired ? 'md:translate-x-[26px] translate-x-[17px] bg-white shadow-black shadow-sm' : 'translate-x-[-5px] bg-black'}`}>
                 </div>
             </div>
         </button>
     }
 
-    const QuestionFootComponent = ({questionId, currentIsRequired}) => {
+    const QuestionFootComponent = ({questionId, currentIsRequired, bgColour}) => {
 
         const deleteQuestionStateBackend = useDebouncedCallback((questionId) => {
             dispatch(deleteQuestion({questionId}))
@@ -328,8 +338,8 @@ const QuestionsComponent = () => {
         }, 0)
 
         return <div className='flex justify-end md:gap-4 gap-2'>
-                <div className='md:text-[20px] md:pt-[15px] md:gap-2
-                        pt-[6px] flex justify-between gap-1 text-[14px]'>
+                <div className='md:text-[20px] md:pt-[22px] md:gap-2
+                        pt-[13px] flex justify-between gap-1 text-[14px]'>
                     <span>
                         Required
                     </span>
@@ -337,7 +347,8 @@ const QuestionsComponent = () => {
                         <ToggleSwitchComponent questionId={questionId} currentIsRequired={currentIsRequired}/>
                     </div>
                 </div>
-                <button onClick={() => {deleteQuestionStateBackend(questionId)}}>
+                <button className={`md:pt-3 pt-[6px]`}
+                    onClick={() => {deleteQuestionStateBackend(questionId)}}>
                     <svg className="md:size-10 
                         p-1 rounded-md hover:bg-red-500  hover:text-white size-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -354,7 +365,7 @@ const QuestionsComponent = () => {
 
         return <div className='md:mb-1'>    
             <button className='md:py-[12px] md:ml-[8px] md:px-[257px]
-                flex justify-between ml-1 py-[3px] px-[65px] gap-2 rounded-md border-black border-[1px]'
+                flex justify-between ml-1 py-[3px] px-[70px] gap-2 rounded-md border-black border-[1px]'
                 onClick={addQuestionMethod}
             >
                 <div className='pt-1'>
@@ -369,14 +380,16 @@ const QuestionsComponent = () => {
         </div>  
     }
 
-    return <div className='my-1 p-2 rounded-md bg-white'>
+    return <div className={`my-1 p-2 rounded-md ${bgColour}`}>
         <div>
             {questions.map((question) => {
-                return <QuestionComponent key={question.id} question={question}/>
+                return <QuestionComponent key={question.id} question={question} bgColour={bgColour2}/>
             })
         }
         </div>
-        <AddQuestionComponent />
+        <div>
+            <AddQuestionComponent />
+        </div>
     </div>
 }
 

@@ -80,7 +80,7 @@ export const addQuestionAsync = createAsyncThunk('survey/addQuestionAsync', asyn
             isFocused: true,
             type: 'SINGLE_SELECT',
             options: [
-                {id: optionId, optionLabel: payload.questionLabel}
+                {id: optionId, optionLabel: payload.optionLabel}
             ]
         }
     } catch (err) {
