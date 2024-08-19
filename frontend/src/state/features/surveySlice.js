@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { backendUrl } from '../../config';
 
-async function createOption(questionId) {
+async function createOption(questionId, optionLabel) {
     try {
         const optionResponse = await axios({
             url: `${backendUrl}/options`,
@@ -13,7 +13,7 @@ async function createOption(questionId) {
             },
             data: {
                 questionId,
-                optionLabel: 'Untitled Option'
+                optionLabel
             }
         })
     
@@ -24,7 +24,7 @@ async function createOption(questionId) {
     }
 }
 
-async function createQuestion(surveyId) {
+async function createQuestion(surveyId, questionLabel, type) {
    try {
         const questionResponse = await axios({
             url: `${backendUrl}/questions`,
@@ -35,8 +35,8 @@ async function createQuestion(surveyId) {
             },
             data: {
                 surveyId,
-                questionLabel: 'Untitled Question',
-                type: 'SINGLE_SELECT'
+                questionLabel,
+                type
             }
         })
 
@@ -68,19 +68,19 @@ async function createSurvey() {
     }
 }
 
-export const addQuestionAsync = createAsyncThunk('survey/addQuestionAsync', async(payload, { getState }) => {
-    const { survey: { survey } } = getState();
+export const addQuestionAsync = createAsyncThunk('survey/addQuestionAsync', async(payload) => {
     try {
-        const questionId = await createQuestion(survey.id);
-        const optionId = await createOption(questionId);
+        const questionId = await createQuestion(payload.surveyId, payload.questionLabel, payload.questionType);
+        const optionId = await createOption(questionId, payload.optionLabel);
 
         return {
             id: questionId,
-            questionLabel: 'Untitled Question',
+            questionLabel: payload.questionLabel,
             isRequired: false,
+            isFocused: true,
             type: 'SINGLE_SELECT',
             options: [
-                {id: optionId, optionLabel: 'Untitled Option'}
+                {id: optionId, optionLabel: payload.questionLabel}
             ]
         }
     } catch (err) {
@@ -88,6 +88,54 @@ export const addQuestionAsync = createAsyncThunk('survey/addQuestionAsync', asyn
         throw new Error('Failed to add question')
     }
 });
+
+export const addOptionAsync = createAsyncThunk('survey/addOptionAsync', async(payload) => {
+    try {
+        const response = await axios({
+            url: `${backendUrl}/options`,
+            method: 'POST',
+            headers: {
+                'Content-Type': "application/json",
+                'Authorization': localStorage.getItem('queriousToken')
+            },
+            data: {
+                questionId: payload.id,
+                optionLabel: payload.optionLabel
+            }
+        })
+
+        return {
+            questionId: payload.id,
+            id: response.data.optionId,
+            optionLabel: payload.optionLabel
+        }
+
+    } catch (err) {
+        console.log(err);
+        throw new Error('Failed to add option');
+    }
+}) 
+
+export const toggleRequirementAsync = createAsyncThunk('survey/toggleRequirementAsync', async(payload) => {
+    try {
+        const { questionId } = payload;
+
+        const response = await axios({
+            url: `${backendUrl}/questions/required/${questionId}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': "application/json",
+                'Authorization': localStorage.getItem('queriousToken')
+            }
+        })
+
+        return { questionId, updatedRequirement: response.data.updatedRequirement}
+
+    } catch (err) {
+        console.log(err);
+        throw new Error('Unable to toggle requirement')
+    }
+})
 
 const initialState = {
     survey: {
@@ -161,33 +209,25 @@ export const surveySlice = createSlice({
 
         setOptionLabel: (state, action) => {
             const { payload: { questionId, optionId, optionLabel } } = action;
-            console.log("payload", action.payload);
 
-            for (let question of state.survey.questions) {
-                console.log('1')
-                if(question.id === questionId) {
-                    console.log('2')
-                    for(let option of question.options) {
-                        console.log('3')
-                        if(option.id === optionId) {
-                            console.log("before", option.optionLabel)
-                            option.optionLabel = optionLabel;
-                            console.log("after", option.optionLabel)
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
+            const question = state.survey.questions.find(question => question.id === questionId);
+            const option = question.options.find(option => option.id === optionId)
+            option.optionLabel = optionLabel
         },
 
         deleteOption: (state, action) => {
+            console.log(action.payload);
             const { payload: { questionId, optionId } } = action;
-            state.survey.questions = state.survey.questions.filter((question) => {
-                if(question.id === questionId) question.options = question.options.filter((option) => {
-                    if(option.id !== optionId ) return option
-                })
-            }) 
+
+            state.survey.questions = state.survey.questions.map((question) => {
+                if(question.id === questionId) {
+                    return {
+                        ...question,
+                        options: question.options.filter((option) => option.id !== optionId)
+                    }
+                }
+                return question
+            })
         },
 
         deleteQuestion: (state, action) => {
@@ -200,7 +240,18 @@ export const surveySlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(addQuestionAsync.fulfilled, (state, action) => {
+                state.survey.questions.forEach((question) => question.isFocused = false);
                 state.survey.questions.push(action.payload);
+            })
+            .addCase(addOptionAsync.fulfilled, (state, action) => {
+                const questions = state.survey.questions.find(question => question.id === action.payload.questionId)
+                questions.options.push({id: action.payload.id, optionLabel: action.payload.optionLabel});
+            })
+            .addCase(toggleRequirementAsync.fulfilled, (state, action) => {
+                const { payload: { questionId, updatedRequirement} } = action;
+                state.survey.questions.filter((question) => {
+                    if(question.id === questionId) question.isRequired =  updatedRequirement;
+                })
             })
     }
 })
