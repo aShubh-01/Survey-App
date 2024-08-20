@@ -13,10 +13,14 @@ export const fetchAllSurveys = createAsyncThunk('allSurveys/fetchData', async ()
                 'Authorization': localStorage.getItem('queriousToken')
             }
         })
-      
+    
         const allSurveys = response.data.allSurveys;
+
         const publishedSurveys = allSurveys.filter((survey) => survey.isPublished)
+
         const unpublishedSurveys = allSurveys.filter((survey) => !survey.isPublished)
+        localStorage.setItem('unpublishedSurveys',  JSON.stringify(unpublishedSurveys))
+
         return { publishedSurveys, unpublishedSurveys }
     } catch (err) {
         console.log(err);

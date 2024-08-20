@@ -213,7 +213,6 @@ const createSurvey =  async (req, res) => {
 
 const updateSurvey = async (req, res) => {
     try {
-        const surveyPayload = req.body;
         const surveyId = parseInt(req.params.id);
 
         const parseResponse = surveySchema.safeParse(req.body);
@@ -226,7 +225,7 @@ const updateSurvey = async (req, res) => {
 
         await prisma.survey.update({
             where: { id: surveyId },
-            data: surveyPayload
+            data: req.body
         })
 
         return res.status(200).json({
@@ -248,31 +247,25 @@ const deleteSurvey = async (req, res) => {
         const userId = req.userId;
 
         await prisma.$transaction(async (prisma) => {
-            await prisma.survey.update({
-                where: { id: surveyId, userId },
-                data: { isDeleted: true }
+            await prisma.answer.deleteMany({
+                where: { submission: { surveyId }}
+            })
+
+            await prisma.option.deleteMany({
+                where: { question: { surveyId }}
+            })
+
+            await prisma.question.deleteMany({
+                where: { surveyId: surveyId }
+            })
+
+            await prisma.submission.deleteMany({
+                where: { surveyId }
+            })
+
+            await prisma.survey.delete({
+                where: { id: surveyId, userId }
             });
-
-            await prisma.question.updateMany({
-                where: { surveyId: surveyId },
-                data: { isDeleted: true }
-            })
-
-            await prisma.option.updateMany({
-                where: { question: { surveyId }},
-                data: { isDeleted: true }
-            })
-
-            await prisma.submission.updateMany({
-                where: { surveyId },
-                data: { isDeleted: true }
-            })
-
-            await prisma.answer.updateMany({
-                where: { submission: { surveyId }},
-                data: { isDeleted: true }
-            })
-
         });
 
         return res.status(200).json({

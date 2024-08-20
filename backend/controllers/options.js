@@ -74,13 +74,8 @@ const updateOption = async (req, res) => {
 const deleteOption = async (req, res) => {
     try {
         const optionId = parseInt(req.params.id);
-        await prisma.option.update({
-            where: {
-                id: optionId
-            },
-            data: {
-                isDeleted: true
-            }
+        await prisma.option.delete({
+            where: { id: optionId }
         });
         return res.status(200).json({
             message: "Option Deleted!"
