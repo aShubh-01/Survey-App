@@ -15,12 +15,8 @@ export default function DashboardComponent() {
 
     const createSurvey = async () => {
         localStorage.removeItem('survey');
-        try {
-            dispatch(createAndAddSurveyAsync({surveyTitle: 'Untitled Survey', questionLabel: 'Untitled Question', type: 'SINGLE_SELECT', optionLabel: 'Untitled Option'}))
-            navigate('/create');
-        } catch (err) {
-            alert('Unable to creat survey');
-        }
+        dispatch(createAndAddSurveyAsync({surveyTitle: 'Untitled Survey', questionLabel: 'Untitled Question', type: 'SINGLE_SELECT', optionLabel: 'Untitled Option'}))
+        navigate('/create');
     }
 
     return (

@@ -36,7 +36,9 @@ const initialState = {
 
 export const allSurveysSlice = createSlice({
     name: 'allSurveys',
-    reducers: {},
+    reducers: {
+
+    },
     initialState,
     extraReducers: (builder) => {
         builder

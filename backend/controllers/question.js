@@ -17,7 +17,7 @@ const createQuestion = async (req, res) => {
         const { id: questionId } = await prisma.question.create({
             data: {
                 surveyId: parseInt(surveyId),
-                questionLabel: questionLabel
+                questionLabel: questionLabel,
             },
             select: {
                 id: true

@@ -117,23 +117,23 @@ export const addOptionAsync = createAsyncThunk('survey/addOptionAsync', async(pa
 }) 
 
 export const createAndAddSurveyAsync = createAsyncThunk('survey/createAndAddSurveyAsync', async(payload) => {
-    // const surveyId = await createSurvey(payload.surveyTitle);
-    // const questionId = await createQuestion(surveyId, payload.questionLabel, payload.type);
-    // const optionId = await createOption(questionId, payload.optionLabel);
+    const surveyId = await createSurvey(payload.surveyTitle);
+    const questionId = await createQuestion(surveyId, payload.questionLabel, payload.type);
+    const optionId = await createOption(questionId, payload.optionLabel);
 
     const survey = {
-        id: 0,
+        id: surveyId,
         surveyTitle: payload.surveyTitle,
         isPublished: false,
         questions: [
             {
-                id: 0,
+                id: questionId,
                 questionLabel: payload.questionLabel,
                 type: payload.types,
                 isRequired: false,
                 options: [
                     {
-                        id: 0,
+                        id: optionId,
                         optionLabel: payload.optionLabel            
                     }
                 ]
@@ -141,11 +141,8 @@ export const createAndAddSurveyAsync = createAsyncThunk('survey/createAndAddSurv
         ]
     }
 
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(survey);
-        }, 3000)
-    })
+    localStorage.setItem('survey', JSON.stringify(survey));
+    return survey;
 })
 
 
@@ -274,8 +271,7 @@ export const surveySlice = createSlice({
         },
         
         deleteSurvey: (state, action) => {
-            const { payload: { surveyId } } = action;
-            console.log(state);
+            state.survey = {};
         }
     },
     extraReducers: (builder) => {
@@ -295,11 +291,10 @@ export const surveySlice = createSlice({
                 })
             })
             .addCase(createAndAddSurveyAsync.pending, (state, action) => {
-                state.survey.loading = true;
+                state.survey = null;
             })
             .addCase(createAndAddSurveyAsync.fulfilled, (state, action) => {
-                delete state.survey.loading;
-                state.survey = action.survey;
+                state.survey = action.payload;
             })
     }
 })

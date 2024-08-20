@@ -186,7 +186,7 @@ const createSurvey =  async (req, res) => {
             })
         }
 
-        const surveyId = await prisma.survey.create({
+        const { id: surveyId} = await prisma.survey.create({
             data: {
                 userId: userId,
                 surveyTitle: surveyTitle,
