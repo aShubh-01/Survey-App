@@ -1,23 +1,29 @@
-import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from 'react-router-dom';
-import { initiateSurvey } from '../../state/features/surveySlice';
 import unpublishedSurveysBackground from '../../assets/images/unpublishedSurveysBackground.png'
 
 export default function UnpublishedSurveysComponent(){
     let key = 1;
-    const dispatch = useDispatch();
     const navigate = useNavigate();
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
-    const { data: { unpublishedSurveys: surveys} } = useSelector((state) => state.allSurveys);
+    const surveys = JSON.parse(localStorage.getItem('unpublishedSurveys'))
    
-    if(surveys.length < 1) return <div className='h-screen flex justify-center'
+    if(surveys.length < 1) {
+        return <div className='h-screen flex justify-center'
         style={{
             backgroundSize: isSmallScreen ? '500px' : `1000px`,
             backgroundImage: `url(${unpublishedSurveysBackground})`
         }}>
-        You dont have any unpublished surveys
-    </div>
+        <span className='h-[50px] bg-white text-center my-96 p-2 text-[25px] font-bold rounded-md shadow-md shadow-black'>
+            You dont have any unpublished surveys
+        </span>
+        </div>
+    }
+
+    useEffect(() => {
+        localStorage.removeItem('survey');
+    }, [])
 
     return (
         <>
@@ -30,7 +36,7 @@ export default function UnpublishedSurveysComponent(){
                     {
                         surveys.map((survey) => {
                             function insertSurvey(){
-                                dispatch(initiateSurvey(survey))
+                                localStorage.setItem('survey', JSON.stringify(survey));
                                 navigate('/create')
                             }
 

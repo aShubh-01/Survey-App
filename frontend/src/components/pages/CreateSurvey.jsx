@@ -1,21 +1,25 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { backendUrl } from '../../config';
 import { useMediaQuery } from 'react-responsive';
 import createSurveyBackgroundImage from '../../assets/images/createSurveyBackgroundImage.png';
-import { setTitle, deleteQuestion, setQuestionFocusesState, setFocus, 
-    setQuesionLabel, setQuestionType, setOptionLabel, deleteOption, 
-    setDescription, addOptionAsync, addQuestionAsync, toggleRequirementAsync} from '../../state/features/surveySlice';
+import { initiateSurvey, deleteQuestion, deleteSurvey, setQuestionFocusesState, setFocus, setQuesionLabel, 
+    setQuestionType, setOptionLabel, deleteOption, setDescription, setTitle, addOptionAsync,
+    addQuestionAsync, toggleRequirementAsync} from '../../state/features/surveySlice';
 import useDebouncedCallback from '../../state/customHooks/debounceCallback';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreateSurveyComponent() {
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
     const dispatch = useDispatch();
-    const { survey } = useSelector(state => state.survey)
-    const colourPalette = ['bg-[#FF007F]', 'bg-[#FFCBA4]', 'bg-white']
+    const colourPalette = ['bg-[#FF007F]', 'bg-[#FFDBA4]', 'bg-white']
 
-    useEffect(() => console.log(survey), [survey]);
+    useEffect(() => {
+        const survey = JSON.parse(localStorage.getItem('survey'));
+        dispatch(initiateSurvey(survey));
+        dispatch(setQuestionFocusesState())
+    }, []);
 
     return (
         <>
@@ -25,10 +29,10 @@ export default function CreateSurveyComponent() {
             }}
                 className={`flex justify-center min-h-screen ${colourPalette[0]}`}>
                     <div className='md:p-4
-                        m-2 mt-4 p-3 rounded-md md:w-[800px] w-[315px] bg-white'>
+                        m-4 mb-10 p-3 rounded-md md:w-[800px] w-[315px] bg-white'>
                     <TitleCardComponent bgColour={colourPalette[1]}/>
                     <QuestionsComponent bgColour={colourPalette[1]} bgColour2={colourPalette[2]} />
-                    <FooterComponent dispatch = {dispatch}/>
+                    <FooterComponent bgColour={colourPalette[1]}/>
                 </div>
             </div>
         </>
@@ -37,29 +41,59 @@ export default function CreateSurveyComponent() {
 
 const TitleCardComponent = ({bgColour}) => {
     const dispatch = useDispatch();
-    const { title, description } = useSelector(state => {
-        return { title: state.survey.survey.surveyTitle, description: state.survey.survey.description}
+    const { id, surveyTitle, description } = useSelector(state => {
+        return state.survey.survey;
     });
+
+    const updateTitleBackend = useDebouncedCallback((surveyId, surveyTitle) => {
+        axios({
+            url: `${backendUrl}/surveys/${surveyId}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': "application/json",
+                'Authorization': localStorage.getItem('queriousToken')
+            },
+            data: {
+                surveyTitle
+            } 
+        })
+    }, 1500)
+
+    const updateDescriptionBackend = useDebouncedCallback((surveyId, description) => {
+        axios({
+            url: `${backendUrl}/surveys/${surveyId}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': "application/json",
+                'Authorization': localStorage.getItem('queriousToken')
+            },
+            data: {
+                description
+            } 
+        })
+    }, 1500)
 
     return <div className='mb-2 md:text-[25px]'>
         <div className={`p-2 ${bgColour} rounded-md grid gap-2`}>
             <span>
-                <input type='text' value={title} placeholder='Title'
+                <input type='text' value={surveyTitle} placeholder='Title'
                     className={`md:w-[600px] md:pl-[5px] font-bold
                         ${bgColour}
                         pl-[2px] w-[210px] focus:outline-none border-black border-b-[1px]`}
                     onChange={(event) => {
                         dispatch(setTitle(event.target.value))
+                        updateTitleBackend(id, event.target.value);
                     }}
                 />
             </span>
             <span>
                 <textarea rows="2" maxLength="500" value={description} placeholder='Description'
-                    className={`md:pl-[5px] md:w-[730px] md:text-[20px] font-semibold 
+                    className={`md:pl-[5px] md:w-[750px] md:text-[20px] font-semibold 
                         ${bgColour}
                         pl-[2px] w-[270px] border-black border-b-[1px] focus:outline-none`}
                     onChange={(event) => {
                         dispatch(setDescription(event.target.value))
+                        updateDescriptionBackend(id, event.target.value)
                     }}
                 ></textarea>
             </span>
@@ -72,10 +106,6 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
     const questions = useSelector(state => {
         return state.survey.survey.questions;
     })
-
-    useEffect(() => {
-        dispatch(setQuestionFocusesState())
-    }, []);
 
     const questionTypeOptions = [
         {value: "SINGLE_SELECT", label: "Multiple Choice"},
@@ -113,7 +143,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
                 <div className={`flex justify-between gap-[6px] py-[4px] px-[5px] mb-2 rounded-md ${bgColour2}`}>
                     <span className=''>
                         <input type='text' value={currentQuestionLabel}
-                            className={`${question.isFocused ? 'w-[150px] md:w-[535px]' : 'w-[265px] md:w-[725px]'}
+                            className={`${question.isFocused ? 'w-[150px] md:w-[535px]' : 'w-[265px] md:w-[740px]'}
                                 md:pl-[3px] md:text-[20px] ${bgColour2} font-semibold
                                 pl-[1px] mt-[2px] text-[14px] focus:outline-none border-black border-b-[1px]`}
                             onChange={(event) => {
@@ -304,10 +334,14 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
     const ToggleSwitchComponent = ({questionId, currentIsRequired}) => {
         const dispatch = useDispatch();
         const [isRequired, setIsRequired] = useState(currentIsRequired);
+
+        const updateIsRequiredStateBackend = useDebouncedCallback((questionId, isRequired) => {
+            dispatch(toggleRequirementAsync({questionId, isRequired}))
+        }, 1500)
         
         const toggleIsRequired = () => {
+            updateIsRequiredStateBackend(questionId, !isRequired)
             setIsRequired(!isRequired);
-            dispatch(toggleRequirementAsync({questionId}))
         }
 
         return <button onClick={toggleIsRequired}>
@@ -364,16 +398,17 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
         }
 
         return <div className='md:mb-1'>    
-            <button className='md:py-[12px] md:ml-[8px] md:px-[257px]
-                flex justify-between ml-1 py-[3px] px-[70px] gap-2 rounded-md border-black border-[1px]'
+            <button className='md:py-[12px] md:ml-[8px] md:px-[257px] md:hover:border-2
+                hover:bg-[#FF007F] hover:text-white 
+                flex justify-between ml-1 py-2 px-[70px] gap-2 rounded-md border-black border-[1px]'
                 onClick={addQuestionMethod}
             >
-                <div className='pt-1'>
+                <div className='md:pt-[px] pt-[3px] hover:text-black'>
                     <svg className="size-4 md:size-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                 </div>
-                <span className='md:text-[25px]'>
+                <span className='md:text-[25px] text-[15px] font-semibold'>
                     New Question
                 </span>
             </button>
@@ -393,8 +428,53 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
     </div>
 }
 
-const FooterComponent = () => {
-    return <div>
-        foot
+const FooterComponent = ({bgColour}) => {
+    const { id } = useSelector(state => state.survey.survey);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const deleteSurveyStateBackend = useDebouncedCallback((surveyId) => {
+        localStorage.removeItem('survey');
+        navigate('/dashboard');
+        dispatch(deleteSurvey(surveyId));
+        axios({
+            url: `${backendUrl}/surveys/${surveyId}`,
+            method: 'DELETE',
+            headers: {
+                'Authorization': localStorage.getItem('queriousToken'),
+                'Content-Type': "application/json"
+            }
+        })
+    }, 0)
+
+    const publishSurveyStateBackend = useDebouncedCallback((surveyId) => {
+        localStorage.removeItem('survey');
+        navigate('/dashboard');
+        dispatch(deleteSurvey(surveyId));
+        axios({
+            url: `${backendUrl}/surveys/publish/${surveyId}`,
+            method: 'PUT',
+            headers: {
+                'Authorization': localStorage.getItem('queriousToken'),
+                'Content-Type': "application/json"
+            }
+        })
+    }, 0)
+
+
+    return <div className={`md:p-3 mt-2 p-2 rounded-md ${bgColour}`}>
+        <div className={`flex justify-between`}>
+            <button className={`md:text-[25px] md:border-2 md:py-4 md:px-24
+                hover:bg-black hover:text-white
+                font-semibold text-[16px] border-[1px] border-black py-3 px-[10px] rounded-md`}
+                onClick={() => {deleteSurveyStateBackend(id)}}
+            >Delete Survey</button>
+
+            <button className={`md:text-[25px] md:border-2 md:py-4 md:px-24
+                hover:text-white hover:bg-black
+                font-semibold text-[16px] border-[1px] border-black py-3 px-[10px] rounded-md`}
+                onClick={() => {publishSurveyStateBackend(id)}}
+            >Publish Survey</button>
+        </div>
     </div>
 }

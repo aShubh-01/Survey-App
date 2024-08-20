@@ -2,14 +2,26 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchAllSurveys } from '../../state/features/fetchSurveysSlice';
+import { createAndAddSurveyAsync } from '../../state/features/surveySlice';
 import dashboardLogo from '../../assets/images/dashboardLogo.png';
 import queriousBackground from '../../assets/images/queriousBackground.png';
 import { useMediaQuery } from 'react-responsive';
 
 export default function DashboardComponent() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
     const [isSurveysFetched, setIsSurveysFetched] = useState(false);
+
+    const createSurvey = async () => {
+        localStorage.removeItem('survey');
+        try {
+            dispatch(createAndAddSurveyAsync({surveyTitle: 'Untitled Survey', questionLabel: 'Untitled Question', type: 'SINGLE_SELECT', optionLabel: 'Untitled Option'}))
+            navigate('/create');
+        } catch (err) {
+            alert('Unable to creat survey');
+        }
+    }
 
     return (
         <div className='h-screen w-full bg-cover bg-center text-white'
@@ -21,7 +33,7 @@ export default function DashboardComponent() {
         <div className='flex justify-center py-[30px]'><Heading /></div>
         <div className='flex justify-center'>
             <div className='grid md:grid-cols-2 md:gap-[50px] grid-cols-1'>
-                <div><ButtonComponent label="New Survey" onClickDo={() => navigate('/create')} icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="md:size-10 size-7"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>}/></div>
+                <div><ButtonComponent label="New Survey" onClickDo={() => { createSurvey() }} icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="md:size-10 size-7"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>}/></div>
                 <div className={`${isSurveysFetched ? 'pointer-events-auto' : 'pointer-events-none'}`}><ButtonComponent label="Unpublished" onClickDo={() => navigate('/unpublished')} icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="md:size-10 size-7"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" /></svg> } /></div>
             </div>
         </div>
@@ -40,6 +52,7 @@ const Heading = () => {
 
 const ButtonComponent = ({label, icon, onClickDo}) => {
     return <div className='flex justify-center md:rounded-[20px] md:shadow-md
+                transform translate md:hover:translate-y-[-2px]
                 m-[5px] bg-slate-300 rounded-[10px] bg-slate-900 shadow-sm shadow-black'>
         <button className='md:p-[40px] md:px-[60px] gap-[10px]
                 p-[10px] px-[85px] flex justify-center gap-[5px]' onClick={onClickDo}>
@@ -64,8 +77,6 @@ const PublishedSurveysComponent = ({setIsSurveysFetched, isSmallScreen}) => {
     if(error) return <div>Unable to fetch published surveys</div>
 
     setIsSurveysFetched(true);
-    if(surveys.publishedSurveys.length < 1) return <div>You have not published any surveys yet</div>
-
 
     return <div className='md:text-[21px]'>
         <table className='md:w-[1000px] md:border-4 bg-black
@@ -81,6 +92,13 @@ const PublishedSurveysComponent = ({setIsSurveysFetched, isSmallScreen}) => {
                 </tr>
             </thead>
         </table>
+        {(surveys.publishedSurveys.length < 1) &&
+            <div className='
+                font-bold mt-1 p-4 text-center rounded-md border-black border-2 bg-slate-900'>
+                You have not published any surveys yet
+            </div>
+        }
+        {(surveys.publishedSurveys.length > 0) &&
         <div className='md:max-h-[400px] bg-slate-800 rounded-lg
             my-[5px] overflow-y-auto max-h-[180px] border-black border-2'>
             <table>
@@ -123,5 +141,6 @@ const PublishedSurveysComponent = ({setIsSurveysFetched, isSmallScreen}) => {
                 </tbody>
             </table>
         </div>
+        }
     </div> 
 }

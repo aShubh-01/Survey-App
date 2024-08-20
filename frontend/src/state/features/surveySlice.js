@@ -47,7 +47,7 @@ async function createQuestion(surveyId, questionLabel, type) {
     }
 }
 
-async function createSurvey() {
+async function createSurvey(surveyTitle) {
    try {
         const surveyResponse = await axios({
             url: `${backendUrl}/surveys`,
@@ -57,7 +57,7 @@ async function createSurvey() {
                 'Content-Type': "application/json"
             },
             data: {
-                surveyTitle: 'Untitled Survey'
+                surveyTitle
             }
         }) 
 
@@ -116,9 +116,42 @@ export const addOptionAsync = createAsyncThunk('survey/addOptionAsync', async(pa
     }
 }) 
 
+export const createAndAddSurveyAsync = createAsyncThunk('survey/createAndAddSurveyAsync', async(payload) => {
+    // const surveyId = await createSurvey(payload.surveyTitle);
+    // const questionId = await createQuestion(surveyId, payload.questionLabel, payload.type);
+    // const optionId = await createOption(questionId, payload.optionLabel);
+
+    const survey = {
+        id: 0,
+        surveyTitle: payload.surveyTitle,
+        isPublished: false,
+        questions: [
+            {
+                id: 0,
+                questionLabel: payload.questionLabel,
+                type: payload.types,
+                isRequired: false,
+                options: [
+                    {
+                        id: 0,
+                        optionLabel: payload.optionLabel            
+                    }
+                ]
+            }
+        ]
+    }
+
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(survey);
+        }, 3000)
+    })
+})
+
+
 export const toggleRequirementAsync = createAsyncThunk('survey/toggleRequirementAsync', async(payload) => {
     try {
-        const { questionId } = payload;
+        const { questionId, isRequired } = payload;
 
         const response = await axios({
             url: `${backendUrl}/questions/required/${questionId}`,
@@ -126,6 +159,9 @@ export const toggleRequirementAsync = createAsyncThunk('survey/toggleRequirement
             headers: {
                 'Content-Type': "application/json",
                 'Authorization': localStorage.getItem('queriousToken')
+            },
+            data: {
+                isRequired
             }
         })
 
@@ -235,6 +271,11 @@ export const surveySlice = createSlice({
             state.survey.questions = state.survey.questions.filter((question) => {
                 if(question.id !== questionId) return question
             })
+        },
+        
+        deleteSurvey: (state, action) => {
+            const { payload: { surveyId } } = action;
+            console.log(state);
         }
     },
     extraReducers: (builder) => {
@@ -253,10 +294,17 @@ export const surveySlice = createSlice({
                     if(question.id === questionId) question.isRequired =  updatedRequirement;
                 })
             })
+            .addCase(createAndAddSurveyAsync.pending, (state, action) => {
+                state.survey.loading = true;
+            })
+            .addCase(createAndAddSurveyAsync.fulfilled, (state, action) => {
+                delete state.survey.loading;
+                state.survey = action.survey;
+            })
     }
 })
 
-export const { initiateSurvey, deleteQuestion, setQuestionFocusesState, setFocus, 
+export const { initiateSurvey, deleteQuestion, deleteSurvey, setQuestionFocusesState, setFocus, 
     setQuesionLabel, setQuestionType, setOptionLabel, deleteOption,
     setTitle, setDescription
 } = surveySlice.actions

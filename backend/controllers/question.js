@@ -94,19 +94,13 @@ const deleteQuestion = async (req, res) => {
         const questionId = parseInt(req.params.id);
 
         await prisma.$transaction(async (prisma) => {
-            await prisma.question.update({
-                where: { id: questionId },
-                data: {
-                    isDeleted: true
-                }
-            });
-
-            await prisma.option.updateMany({
-                where: { questionId: questionId },
-                data: {
-                    isDeleted: true
-                }
+            await prisma.option.deleteMany({
+                where: { questionId: questionId }
             })
+
+            await prisma.question.delete({
+                where: { id: questionId }
+            });
         })
         
         return res.status(200).json({
@@ -124,21 +118,19 @@ const deleteQuestion = async (req, res) => {
 const toggleRequirement = async (req, res) => {
     try {
         const questionId = parseInt(req.params.id);
-
         const updatedRequirement = await prisma.$transaction(async (prisma) => {
-            const { isRequired } = await prisma.question.findUnique({
-                where: { id: questionId },
-                select: { isRequired: true }
-            })
 
             await prisma.question.update({
                 where: { id: questionId },
-                data: {
-                    isRequired: !isRequired
-                }
+                data: req.body
             })
 
-            return !isRequired
+            const { isRequired } = await prisma.question.findFirst({
+                where: { id: questionId },
+                select: { isRequired: true },
+            }) 
+
+            return isRequired;
         })
 
         return res.status(200).json({
