@@ -6,7 +6,8 @@ import { useMediaQuery } from 'react-responsive';
 import createSurveyBackgroundImage from '../../assets/images/createSurveyBackgroundImage.png';
 import { initiateSurvey, deleteQuestion, deleteSurvey, setQuestionFocusesState, setFocus, setQuesionLabel, 
     setQuestionType, setOptionLabel, deleteOption, setDescription, setTitle, addOptionAsync,
-    addQuestionAsync, toggleRequirementAsync} from '../../state/features/surveySlice';
+    addQuestionAsync, createAndAddSurveyAsync, toggleRequirementAsync} from '../../state/features/surveySlice';
+import { fetchAllSurveys } from '../../state/features/fetchSurveysSlice';
 import useDebouncedCallback from '../../state/customHooks/debounceCallback';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,20 +15,33 @@ export default function CreateSurveyComponent() {
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
     const dispatch = useDispatch();
     const colourPalette = ['bg-[#FF007F]', 'bg-[#FFDBA4]', 'bg-white']
+    const { survey } = useSelector(state => state.survey) 
 
     useEffect(() => {
-        const survey = JSON.parse(localStorage.getItem('survey'));
-        dispatch(initiateSurvey(survey));
-        dispatch(setQuestionFocusesState())
+        const currentSurvey = JSON.parse(localStorage.getItem('survey'));
+        if(currentSurvey) {
+            dispatch(initiateSurvey(currentSurvey));
+            dispatch(setQuestionFocusesState())
+        } else {
+            dispatch(createAndAddSurveyAsync());
+        }
     }, []);
+
+    if(survey === null) return <div>Loading survey</div>
+
+    useEffect(() => {
+        dispatch(fetchAllSurveys());
+    }, [survey])
 
     return (
         <>
-            <div style={{
-                backgroundSize: isSmallScreen ? '500px' : `1000px`,
-                backgroundImage: `url(${createSurveyBackgroundImage})`
-            }}
-                className={`flex justify-center min-h-screen ${colourPalette[0]}`}>
+            <div className={`flex justify-center min-h-screen ${colourPalette[0]}`}
+                style={{
+                    backgroundSize: isSmallScreen ? '500px' : `1000px`,
+                    backgroundImage: `url(${createSurveyBackgroundImage})`,
+                    alignItems: 'flex-start',
+                }}
+            >
                     <div className='md:p-4
                         m-4 mb-10 p-3 rounded-md md:w-[800px] w-[315px] bg-white'>
                     <TitleCardComponent bgColour={colourPalette[1]}/>
@@ -397,7 +411,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
             dispatch(addQuestionAsync({surveyId: id, questionLabel: 'Untitled Question', questionType: 'SINGLE_SELECT', optionLabel: 'Untitled Option'}));
         }
 
-        return <div className='md:mb-1'>    
+        return <div className='md:my-1'>    
             <button className='md:py-[12px] md:ml-[8px] md:px-[257px] md:hover:border-2
                 hover:bg-[#FF007F] hover:text-white 
                 flex justify-between ml-1 py-2 px-[70px] gap-2 rounded-md border-black border-[1px]'
@@ -429,15 +443,12 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
 }
 
 const FooterComponent = ({bgColour}) => {
-    const { id } = useSelector(state => state.survey.survey);
+    const { id: surveyId } = useSelector(state => state.survey.survey);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const deleteSurveyStateBackend = useDebouncedCallback((surveyId) => {
-        localStorage.removeItem('survey');
-        navigate('/dashboard');
-        dispatch(deleteSurvey(surveyId));
-        axios({
+    const deleteSurveyStateBackend = useDebouncedCallback(async (surveyId) => {
+        await axios({
             url: `${backendUrl}/surveys/${surveyId}`,
             method: 'DELETE',
             headers: {
@@ -445,12 +456,12 @@ const FooterComponent = ({bgColour}) => {
                 'Content-Type': "application/json"
             }
         })
+        localStorage.removeItem('survey');
+        dispatch(deleteSurvey(surveyId));
+        navigate('/dashboard');
     }, 0)
 
     const publishSurveyStateBackend = useDebouncedCallback((surveyId) => {
-        localStorage.removeItem('survey');
-        navigate('/dashboard');
-        dispatch(deleteSurvey(surveyId));
         axios({
             url: `${backendUrl}/surveys/publish/${surveyId}`,
             method: 'PUT',
@@ -459,21 +470,23 @@ const FooterComponent = ({bgColour}) => {
                 'Content-Type': "application/json"
             }
         })
+        localStorage.removeItem('survey');
+        dispatch(deleteSurvey(surveyId));
+        navigate('/dashboard');
     }, 0)
-
 
     return <div className={`md:p-3 mt-2 p-2 rounded-md ${bgColour}`}>
         <div className={`flex justify-between`}>
             <button className={`md:text-[25px] md:border-2 md:py-4 md:px-24
                 hover:bg-black hover:text-white
                 font-semibold text-[16px] border-[1px] border-black py-3 px-[10px] rounded-md`}
-                onClick={() => {deleteSurveyStateBackend(id)}}
+                onClick={() => {deleteSurveyStateBackend(surveyId)}}
             >Delete Survey</button>
 
             <button className={`md:text-[25px] md:border-2 md:py-4 md:px-24
                 hover:text-white hover:bg-black
                 font-semibold text-[16px] border-[1px] border-black py-3 px-[10px] rounded-md`}
-                onClick={() => {publishSurveyStateBackend(id)}}
+                onClick={() => {publishSurveyStateBackend(surveyId)}}
             >Publish Survey</button>
         </div>
     </div>

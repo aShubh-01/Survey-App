@@ -23,7 +23,7 @@ export default function UnpublishedSurveysComponent(){
 
     useEffect(() => {
         localStorage.removeItem('survey');
-    }, [])
+    })
 
     return (
         <>
