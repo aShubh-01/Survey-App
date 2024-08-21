@@ -129,7 +129,8 @@ export const createAndAddSurveyAsync = createAsyncThunk('survey/createAndAddSurv
             {
                 id: questionId,
                 questionLabel: payload.questionLabel,
-                type: payload.types,
+                type: payload.type,
+                isFocused: true,
                 isRequired: false,
                 options: [
                     {
@@ -271,7 +272,7 @@ export const surveySlice = createSlice({
         },
         
         deleteSurvey: (state, action) => {
-            state.survey = {};
+            state.survey = null;
         }
     },
     extraReducers: (builder) => {

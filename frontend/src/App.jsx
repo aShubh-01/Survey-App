@@ -2,11 +2,11 @@ import { BrowserRouter, Routes, Route} from 'react-router-dom';
 import React, { Suspense } from 'react';
 import './App.css'
 
-const AuthComponent = React.lazy(() => import('./components/pages/Auth'))
-const DashboardComponent = React.lazy(() => import('./components/pages/Dashboard'))
-const CreateSurveyComponent = React.lazy(() => import('./components/pages/CreateSurvey'))
-const UnpublishedSurveysComponent = React.lazy(() => import('./components/pages/UnpublishedSurveys'))
-const AnalyseSurveyComponent = React.lazy(() => import('./components/pages/AnalyseSurvey'))
+import AuthComponent from './components/pages/Auth'
+import DashboardComponent from './components/pages/Dashboard'
+import CreateSurveyComponent from './components/pages/CreateSurvey'
+import AnalyseSurveyComponent from './components/pages/AnalyseSurvey'
+import UnpublishedSurveysComponent from './components/pages/UnpublishedSurveys'
 
 function App() {
 
