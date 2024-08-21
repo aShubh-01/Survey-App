@@ -6,7 +6,7 @@ import { useMediaQuery } from 'react-responsive';
 import createSurveyBackgroundImage from '../../assets/images/createSurveyBackgroundImage.png';
 import { initiateSurvey, deleteQuestion, deleteSurvey, setQuestionFocusesState, setFocus, setQuesionLabel, 
     setQuestionType, setOptionLabel, deleteOption, setDescription, setTitle, addOptionAsync,
-    addQuestionAsync, createAndAddSurveyAsync, toggleRequirementAsync} from '../../state/features/surveySlice';
+    addQuestionAsync, toggleRequirementAsync} from '../../state/features/surveySlice';
 import { fetchAllSurveys } from '../../state/features/fetchSurveysSlice';
 import useDebouncedCallback from '../../state/customHooks/debounceCallback';
 import { useNavigate } from 'react-router-dom';
@@ -17,21 +17,23 @@ export default function CreateSurveyComponent() {
     const colourPalette = ['bg-[#FF007F]', 'bg-[#FFDBA4]', 'bg-white']
     const { survey } = useSelector(state => state.survey) 
 
+    const updateSurveysBackend = useDebouncedCallback(() => {
+        dispatch(fetchAllSurveys());
+    }, 3000);
+
     useEffect(() => {
         const currentSurvey = JSON.parse(localStorage.getItem('survey'));
         if(currentSurvey) {
             dispatch(initiateSurvey(currentSurvey));
             dispatch(setQuestionFocusesState())
-        } else {
-            dispatch(createAndAddSurveyAsync());
         }
     }, []);
 
-    if(survey === null) return <div>Loading survey</div>
-
     useEffect(() => {
-        dispatch(fetchAllSurveys());
+        updateSurveysBackend()
     }, [survey])
+
+    if(survey === null) return <div>Loading survey</div>
 
     return (
         <>
@@ -447,6 +449,12 @@ const FooterComponent = ({bgColour}) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    function cleanUp() {
+        localStorage.removeItem('survey');
+        dispatch(deleteSurvey());
+        navigate('/dashboard');
+    }
+
     const deleteSurveyStateBackend = useDebouncedCallback(async (surveyId) => {
         await axios({
             url: `${backendUrl}/surveys/${surveyId}`,
@@ -456,13 +464,11 @@ const FooterComponent = ({bgColour}) => {
                 'Content-Type': "application/json"
             }
         })
-        localStorage.removeItem('survey');
-        dispatch(deleteSurvey(surveyId));
-        navigate('/dashboard');
+        cleanUp();
     }, 0)
 
-    const publishSurveyStateBackend = useDebouncedCallback((surveyId) => {
-        axios({
+    const publishSurveyStateBackend = useDebouncedCallback(async (surveyId) => {
+        await axios({
             url: `${backendUrl}/surveys/publish/${surveyId}`,
             method: 'PUT',
             headers: {
@@ -470,9 +476,7 @@ const FooterComponent = ({bgColour}) => {
                 'Content-Type': "application/json"
             }
         })
-        localStorage.removeItem('survey');
-        dispatch(deleteSurvey(surveyId));
-        navigate('/dashboard');
+        cleanUp();
     }, 0)
 
     return <div className={`md:p-3 mt-2 p-2 rounded-md ${bgColour}`}>
