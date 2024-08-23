@@ -1,6 +1,8 @@
 import lottie from 'lottie-web';
 import { useEffect, useRef } from 'react';
 import LoadAuthAnimation from '../assets/animations/Animation - 1722663753436.json';
+import PlusLoadingAnimation from '../assets/animations/PlusLoading.json';
+import TripleDotLoadingAnimation from '../assets/animations/TripleDotLoading.json';
 
 const LoadAnimation = ({animationData}) => {
     const container = useRef(null);
@@ -21,4 +23,12 @@ const LoadAnimation = ({animationData}) => {
 
 export const LoadAuth = () => {
     return <LoadAnimation animationData={LoadAuthAnimation} />
+}
+
+export const PlusLoading = () => {
+    return <LoadAnimation animationData={PlusLoadingAnimation} />
+}
+
+export const TripleDotLoading = () => {
+    return <LoadAnimation animationData={TripleDotLoadingAnimation} />
 }

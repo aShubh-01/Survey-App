@@ -10,6 +10,7 @@ import { initiateSurvey, deleteQuestion, deleteSurvey, setQuestionFocusesState, 
 import { fetchAllSurveys } from '../../state/features/fetchSurveysSlice';
 import useDebouncedCallback from '../../state/customHooks/debounceCallback';
 import { useNavigate } from 'react-router-dom';
+import { PlusLoading, TripleDotLoading } from '../AnimatedComponents';
 
 export default function CreateSurveyComponent() {
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
@@ -159,9 +160,9 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
                 <div className={`flex justify-between gap-[6px] py-[4px] px-[5px] mb-2 rounded-md ${bgColour2}`}>
                     <span className=''>
                         <input type='text' value={currentQuestionLabel}
-                            className={`${question.isFocused ? 'w-[150px] md:w-[535px]' : 'w-[265px] md:w-[740px]'}
+                            className={`${question.isFocused ? 'w-[150px] md:w-[535px] border-b-[1px]' : 'w-[265px] md:w-[740px]'}
                                 md:pl-[3px] md:text-[20px] ${bgColour2} font-semibold
-                                pl-[1px] mt-[2px] text-[14px] focus:outline-none border-black border-b-[1px]`}
+                                pl-[1px] mt-[2px] text-[14px] focus:outline-none border-black`}
                             onChange={(event) => {
                                 setCurrentQuestionLabel(event.target.value);
                                 updateQuestionStateBackend(question.id, event.target.value);
@@ -305,6 +306,12 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
 
     const OptionsComponent = ({questionId, type, options, isFocused, bgColour}) => {
         const dispatch = useDispatch();
+        const [showAnimation, setShowAnimation] = useState();
+        const plusIcon = <svg className="size-4 md:size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+
+        const plusIconData = useMemo(() => {
+            return (showAnimation ? <div className='h-4 w-4 md:h-6 md:w-6'><PlusLoading /></div> : plusIcon)
+        }, [showAnimation])
 
         let icon;
         switch (type) {
@@ -316,6 +323,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
         }
 
         function addOptionMethod() {
+            setShowAnimation(true);
             dispatch(addOptionAsync({id: questionId, optionLabel: 'Untitled Option'}))
         }
 
@@ -335,9 +343,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
                     onClick={addOptionMethod}
                 >
                     <div className='md:pt-[4px] pt-[2px]'>
-                        <svg className="size-4 md:size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
+                        {plusIconData}
                     </div>
                     <span className='md:p-[2px] p-[1px] text-[13px] md:text-[20px]'>
                         Add Option
@@ -409,9 +415,17 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
 
     const AddQuestionComponent = () => {
         const { id } = useSelector(state => state.survey.survey);
+        const [showAnimation, setShowAnimation] = useState(false);
+        const plusIcon = <svg className="size-4 md:size-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+        
         function addQuestionMethod() {
+            setShowAnimation(true)
             dispatch(addQuestionAsync({surveyId: id, questionLabel: 'Untitled Question', questionType: 'SINGLE_SELECT', optionLabel: 'Untitled Option'}));
         }
+
+        const plusIconData = useMemo(() => {
+            return (showAnimation ? <div className='h-4 w-4 md:h-8 md:w-8'><PlusLoading /></div> : plusIcon)
+        }, [showAnimation])
 
         return <div className='md:my-1'>    
             <button className='md:py-[12px] md:ml-[8px] md:px-[257px] md:hover:border-2
@@ -420,9 +434,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
                 onClick={addQuestionMethod}
             >
                 <div className='md:pt-[px] pt-[3px] hover:text-black'>
-                    <svg className="size-4 md:size-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
+                    {plusIconData}
                 </div>
                 <span className='md:text-[25px] text-[15px] font-semibold'>
                     New Question
@@ -455,6 +467,25 @@ const FooterComponent = ({bgColour}) => {
         navigate('/dashboard');
     }
 
+    const ButtonComponent = ({label, onClickDo}) => {
+        const [showAnimation, setShowAnimation] = useState(false);
+
+        const buttonData = useMemo(() => {
+            return (showAnimation ? 
+                <div className='md:w-[170px] w-[110px] flex justify-center'><TripleDotLoading /></div> : label )
+        }, [showAnimation])
+
+        return <button className={`md:text-[25px] md:border-2 md:py-4 md:px-24
+            hover:bg-black hover:text-white
+            font-semibold text-[16px] border-[1px] border-black py-3 px-[10px] rounded-md`}
+            onClick={() => {
+                setShowAnimation(true);
+                onClickDo()
+            }}>
+            {buttonData}
+        </button>
+    }
+
     const deleteSurveyStateBackend = useDebouncedCallback(async (surveyId) => {
         await axios({
             url: `${backendUrl}/surveys/${surveyId}`,
@@ -481,17 +512,8 @@ const FooterComponent = ({bgColour}) => {
 
     return <div className={`md:p-3 mt-2 p-2 rounded-md ${bgColour}`}>
         <div className={`flex justify-between`}>
-            <button className={`md:text-[25px] md:border-2 md:py-4 md:px-24
-                hover:bg-black hover:text-white
-                font-semibold text-[16px] border-[1px] border-black py-3 px-[10px] rounded-md`}
-                onClick={() => {deleteSurveyStateBackend(surveyId)}}
-            >Delete Survey</button>
-
-            <button className={`md:text-[25px] md:border-2 md:py-4 md:px-24
-                hover:text-white hover:bg-black
-                font-semibold text-[16px] border-[1px] border-black py-3 px-[10px] rounded-md`}
-                onClick={() => {publishSurveyStateBackend(surveyId)}}
-            >Publish Survey</button>
+            <ButtonComponent label='Delete Survey' onClickDo={() => {deleteSurveyStateBackend(surveyId)}}/>
+            <ButtonComponent label='Publish Survey' onClickDo={() => {publishSurveyStateBackend(surveyId)}}/>
         </div>
     </div>
 }
