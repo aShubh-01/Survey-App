@@ -7,8 +7,7 @@ const getSurveys = async (req, res) => {
         const userId = req.userId;
         const allSurveys = await prisma.survey.findMany({
             where: {
-                userId: userId,
-                isDeleted: false,
+                userId: userId
             },
             select: {
                 id: true,
@@ -21,18 +20,12 @@ const getSurveys = async (req, res) => {
                     questions: true
                 }},
                 questions: {
-                    where: {
-                        isDeleted: false,
-                    },
                     select: {
                         id: true,
                         questionLabel: true,
                         type: true,
                         isRequired: true,
                         options: {
-                            where: {
-                                isDeleted: false,
-                            },
                             select: {
                                 id: true,
                                 optionLabel: true,
@@ -174,7 +167,7 @@ const getSurvey = async(req, res) => {
 const createSurvey =  async (req, res) => {
     try {
         const userToken = req.headers.authorization;
-        const { surveyTitle, description, closingDate } = req.body;
+        const { surveyTitle, description } = req.body;
 
         const { userId } = jwt.decode(userToken, jwtSecret);
 
@@ -190,8 +183,7 @@ const createSurvey =  async (req, res) => {
             data: {
                 userId: userId,
                 surveyTitle: surveyTitle,
-                description: description || null,
-                closingDate: closingDate || null
+                description: description || null
             },
             select: {
                 id: true

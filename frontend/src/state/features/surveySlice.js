@@ -250,7 +250,6 @@ export const surveySlice = createSlice({
         },
 
         deleteOption: (state, action) => {
-            console.log(action.payload);
             const { payload: { questionId, optionId } } = action;
 
             state.survey.questions = state.survey.questions.map((question) => {

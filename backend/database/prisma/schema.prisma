@@ -40,10 +40,8 @@ model Survey {
   id Int @id @default(autoincrement())
   surveyTitle String
   description String?
-  isDeleted Boolean @default(false)
   isPublished Boolean @default(false)
   isClosed Boolean @default(false)
-  closingDate DateTime?
   questions Question[]
   submission Submission[]
 }
@@ -51,11 +49,10 @@ model Survey {
 model Submission {
   userId Int
   users User @relation(fields: [userId], references: [id])
-  isAnonymous Boolean @default(false)
   surveyId Int
   survey Survey @relation(fields: [surveyId], references: [id])
   id Int @id @default(autoincrement())
-  isDeleted Boolean @default(false)
+  isAnonymous Boolean @default(false)
   answers Answer[]
 }
 
@@ -65,11 +62,9 @@ model Question {
   id Int @id @default(autoincrement())
   questionLabel String
   type QuestionType @default(SINGLE_SELECT)
-  attempts Int @default(0)
   isRequired Boolean @default(false)
-  isDeleted Boolean @default(false)
   options Option[]
-  answers Answer[]
+  attempts Answer[]
 }
 
 model Option {
@@ -77,8 +72,8 @@ model Option {
   question Question @relation(fields: [questionId], references: [id])
   id Int @id @default(autoincrement())
   optionLabel String
-  votes Int @default(0)
-  isDeleted Boolean @default(false)
+  checkboxesResponses CheckboxesResponse[]
+  multipleChoiceReponses Answer[]
 }
 
 model Answer {
@@ -86,8 +81,17 @@ model Answer {
   submission Submission @relation(fields: [submissionId], references: [id])
   questionId Int
   question Question @relation(fields: [questionId], references: [id])
-  optionId Int?
-  textResponse String?
   id Int @id @default(autoincrement())
-  isDeleted Boolean @default(false)
+  textResponse String?
+  multipleChoiceOptionId Int?
+  multipleChoiceResponse Option? @relation(fields: [multipleChoiceOptionId], references: [id])
+  checkboxResponses CheckboxesResponse[]
+}
+
+model CheckboxesResponse {
+    answerId Int
+    answer Answer @relation(fields: [answerId], references: [id])
+    optionId Int
+    option Option @relation(fields: [optionId], references: [id])
+    id Int @id @default(autoincrement())
 }

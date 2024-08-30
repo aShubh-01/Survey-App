@@ -54,12 +54,9 @@ const updateQuestion = async (req, res) => {
                 where: { id: questionId },
                 data: {
                     type: 'TEXT',
-                    options: { updateMany: {
-                        where: { questionId },
-                        data: {
-                            isDeleted: true
-                        }
-                    }}
+                    options: { 
+                        deleteMany: { questionId }
+                    }
                 }
             })
 

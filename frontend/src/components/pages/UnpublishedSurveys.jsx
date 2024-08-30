@@ -15,7 +15,8 @@ export default function UnpublishedSurveysComponent(){
             backgroundSize: isSmallScreen ? '500px' : `1000px`,
             backgroundImage: `url(${unpublishedSurveysBackground})`
         }}>
-        <span className='h-[50px] bg-white text-center my-96 p-2 text-[25px] font-bold rounded-md shadow-md shadow-black'>
+        <span className='md:h-[50px] md:text-[25px] md:p-2 md:w-auto
+            h-[65px] w-[300px] bg-white text-center my-96 p-1 text-[20px] font-bold rounded-md shadow-md shadow-black'>
             You dont have any unpublished surveys
         </span>
         </div>
