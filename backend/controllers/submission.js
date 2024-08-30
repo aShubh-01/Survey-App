@@ -26,93 +26,102 @@ const fetchResponses = async (req, res) => {
 }
 
 const submitResponse = async (req, res) => {
+    let isSubmitted = false;
     const userToken = req.headers.authorization;
-    const { isAnonymous, surveyId, userResponse } = req.body;
+    const { surveyId, isAnonymous, userResponse } = req.body;
 
     try {
         const { userId } = jwt.decode(userToken, jwtSecret);
         if (!userId) throw new Error("Invalid User id");
+        
+        const { isPublished } = await prisma.survey.findFirst({
+            where: { id: parseInt(surveyId) },
+            select: { isPublished: true }
+        })
 
-        await prisma.$transaction(async (prisma) => {
+        if(!isPublished) {
+            return res.status(400).json({
+                message: "Survey is not published"
+            })
+        }
 
-            const questionIds = [], optionsIds = [];
+        await prisma.$transaction(async (tx) => {
+            let validAnswers = [];
+            let checkboxResponseOptionId = [];
+            userResponse.forEach((question) => {
+                switch(question.type) {
+                    case 'SINGLE_SELECT': if(question.answer) validAnswers.push(question)
+                    break;
 
-            userResponse.forEach((response) => {
+                    case 'MULTIPLE_SELECT': if(question.answer.length > 0) validAnswers.push(question)
+                    break;
 
-                questionIds.push(response.questionId);
-
-                if (response.questionType === 'MULTIPLE_SELECT') {
-                    response.answer.forEach((ans) => {
-                        optionsIds.push(ans)
-                    })
-                } else if (response.questionType === 'SINGLE_SELECT') {
-                    optionsIds.push(response.answer);
+                    case 'TEXT': if(question.answer.length > 0) validAnswers.push(question)
+                    break;
                 }
             })
 
-            const { id: submissionId } = await prisma.submission.create({
+            console.log(validAnswers);
+
+            const { id: submissionId } = await tx.submission.create({
                 data: {
-                    userId: userId,
+                    userId: parseInt(userId),
                     isAnonymous: isAnonymous,
-                    surveyId: surveyId,
+                    surveyId: parseInt(surveyId)
+                },
+                select: { id: true, userId: true , isAnonymous: true, surveyId: true }
+            })
+
+            console.log(submissionId);
+
+            await tx.answer.createMany({
+                data: validAnswers.map((answer) => {
+                    let data;
+                    switch(answer.type) {
+                        case 'SINGLE_SELECT': {
+                            data = {
+                                submissionId: submissionId,
+                                questionId: answer.questionId,
+                                multipleChoiceOptionId: parseInt(answer.answer),
+                                textResponse: null
+                            }
+                        } break;
+        
+                        case 'MULTIPLE_SELECT': {
+                            checkboxResponseOptionId.push(answer.answer);
+                            data = {
+                                submissionId: submissionId,
+                                questionId: answer.questionId,
+                                multipleChoiceOptionId: null,
+                                textResponse: null
+                            }
+                        } break;
+        
+                        case 'TEXT': {
+                            data = {
+                                submissionId: submissionId,
+                                questionId: answer.questionId,
+                                multipleChoiceOptionId: null,
+                                textResponse: answer.answer
+                            }
+                        } break;
+                    }
+
+                    return data;
+                })
+            })
+
+            const checkboxResponseAnswerIds = tx.answer.findMany({
+                where: {
+                    submissionId: submissionId,
+                    question: { type: 'MULTIPLE_SELECT' }
                 },
                 select: { id: true }
-            });
-
-            const answerPromises = userResponse.map((response) => {
-                switch (response.questionType) {
-                    case "SINGLE_SELECT": {
-                        return prisma.answer.create({
-                            data: {
-                                submissionId: submissionId,
-                                questionId: response.questionId,
-                                optionId: response.answer
-                            }
-                        });
-                    } break;
-
-                    case "MULTIPLE_SELECT": {
-                        return Promise.all(
-                            response.answer.map((ans) => {
-                                return prisma.answer.create({
-                                    data: {
-                                        submissionId: submissionId,
-                                        questionId: response.questionId,
-                                        optionId: ans
-                                    }
-                                });
-                            }));
-                    } break;
-
-                    case "TEXT": {
-                        return prisma.answer.create({
-                            data: {
-                                submissionId: submissionId,
-                                questionId: response.questionId,
-                                textResponse: response.answer
-                            }
-                        });
-                    } break;
-
-                    default:
-                        return Promise.resolve();
-                }
-            });
-
-            await Promise.all(answerPromises.flat());
-
-            await prisma.question.updateMany({
-                where: { id: { in: questionIds } },
-                data: { attempts: { increment: 1 } }
             })
 
-            await prisma.option.updateMany({
-                where: { id: { in: optionsIds } },
-                data: { votes: { increment: 1 } }
-            })
+            console.log(checkboxResponseAnswerIds, checkboxResponseOptionId);
 
             isSubmitted = true;
-            console.log('Response submitted for ', userId + " " + surveyId)
         })
 
         if(isSubmitted) {
@@ -124,11 +133,10 @@ const submitResponse = async (req, res) => {
                 message: "Response submission failed"
             })
         }
-        
     } catch (err) {
         console.error(err);
         return res.status(500).json({
-            message: "Unable to submit answers"
+            message: "Unable to submit response"
         })
     }
 }
