@@ -47,7 +47,8 @@ const submitResponse = async (req, res) => {
 
         await prisma.$transaction(async (tx) => {
             let validAnswers = [];
-            let checkboxResponseOptionId = [];
+            let checkboxResponseOptionIds = [];
+            let checkboxResponses = [];
             userResponse.forEach((question) => {
                 switch(question.type) {
                     case 'SINGLE_SELECT': if(question.answer) validAnswers.push(question)
@@ -61,8 +62,6 @@ const submitResponse = async (req, res) => {
                 }
             })
 
-            console.log(validAnswers);
-
             const { id: submissionId } = await tx.submission.create({
                 data: {
                     userId: parseInt(userId),
@@ -71,8 +70,6 @@ const submitResponse = async (req, res) => {
                 },
                 select: { id: true, userId: true , isAnonymous: true, surveyId: true }
             })
-
-            console.log(submissionId);
 
             await tx.answer.createMany({
                 data: validAnswers.map((answer) => {
@@ -88,7 +85,7 @@ const submitResponse = async (req, res) => {
                         } break;
         
                         case 'MULTIPLE_SELECT': {
-                            checkboxResponseOptionId.push(answer.answer);
+                            checkboxResponseOptionIds.push(answer.answer);
                             data = {
                                 submissionId: submissionId,
                                 questionId: answer.questionId,
@@ -111,15 +108,26 @@ const submitResponse = async (req, res) => {
                 })
             })
 
-            const checkboxResponseAnswerIds = tx.answer.findMany({
+            const checkboxResponseAnswerIds = await tx.answer.findMany({
                 where: {
                     submissionId: submissionId,
-                    question: { type: 'MULTIPLE_SELECT' }
+                    question: { type: 'MULTIPLE_SELECT'}
                 },
                 select: { id: true }
             })
 
-            console.log(checkboxResponseAnswerIds, checkboxResponseOptionId);
+            for(let index = 0; index < checkboxResponseAnswerIds.length; index++){
+                checkboxResponseOptionIds[index].forEach((id) => {
+                    checkboxResponses.push({
+                        answerId: checkboxResponseAnswerIds[index].id,
+                        optionId: parseInt(id)
+                    })
+                })
+            }
+
+            await tx.checkboxesResponse.createMany({
+                data: checkboxResponses
+            })
 
             isSubmitted = true;
         })
