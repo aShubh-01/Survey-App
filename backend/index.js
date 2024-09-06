@@ -20,7 +20,7 @@ mainRouter.use('/users', userRouter);
 mainRouter.use('/surveys', surveyRouter);
 mainRouter.use('/questions', questionRouter);
 mainRouter.use('/options', optionRouter);
-mainRouter.use('/submission', submissionRouter);
+mainRouter.use('/submissions', submissionRouter);
 
 mainRouter.listen(port, () => {
     console.log("Backend running on " + port)
