@@ -117,51 +117,60 @@ const getSurvey = async(req, res) => {
     const surveyId = parseInt(req.params.id);
     const userId = req.userId;
 
-    const survey = await prisma.survey.findUnique({
-        where: {
-            userId: userId,
-            id: surveyId,
-            isDeleted: false,
-            isPublished: true
-        },
-        select: {
-            id: true,
-            surveyTitle: true,
-            description: true,
-            isClosed: true,
-            questions: {
-                where: {
-                    isDeleted: false,
-                },
-                select: {
-                    id: true,
-                    questionLabel: true,
-                    type: true,
-                    isRequired: true,
-                    attempts: true,
-                    options: {
-                        where: {
-                            isDeleted: false,
-                        },
-                        select: {
-                            id: true,
-                            optionLabel: true,
-                            votes: true
+    try {
+        const isAlreadySubmitted = await prisma.submission.findFirst({
+            where: {
+                userId: userId,
+                surveyId: surveyId
+            },
+            select: { id: true }
+        })
+    
+        // if(isAlreadySubmitted.id) return res.status(200).json({
+        //     message: 'Response Already Submitted'
+        // })
+    
+        const survey = await prisma.survey.findFirst({
+            where: {
+                id: surveyId,
+                isPublished: true,
+            },
+            select: {
+                id: true,
+                surveyTitle: true,
+                description: true,
+                isClosed: true,
+                questions: {
+                    select: {
+                        id: true,
+                        questionLabel: true,
+                        type: true,
+                        isRequired: true,
+                        options: {
+                            select: {
+                                id: true,
+                                optionLabel: true
+                            }
                         }
                     }
                 }
             }
-        }
-    });
-
-    survey.questions.sort((a, b) => a.id - b.id);
-    survey.questions.map((question) => {
-        question.options.sort((a, b) => a.id - b.id)
-    })
-
-    return res.status(200).json({
-        survey
-    });
+        });
+    
+        survey.questions.sort((a, b) => a.id - b.id);
+        survey.questions.map((question) => {
+            question.options.sort((a, b) => a.id - b.id)
+        })
+        
+        return res.status(200).json({
+            survey
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(400).json({
+            message: 'Unable to fetch survey'
+        })
+    }
 }
 
 const createSurvey =  async (req, res) => {
@@ -252,7 +261,7 @@ const deleteSurvey = async (req, res) => {
             })
 
             await prisma.submission.deleteMany({
-                where: { surveyId }
+                where: { surveyId: surveyId }
             })
 
             await prisma.survey.delete({

@@ -121,7 +121,7 @@ export const createAndAddSurveyAsync = createAsyncThunk('survey/createAndAddSurv
     const questionId = await createQuestion(surveyId, payload.questionLabel, payload.type);
     const optionId = await createOption(questionId, payload.optionLabel);
 
-    const survey = {
+    const newSurvey = {
         id: surveyId,
         surveyTitle: payload.surveyTitle,
         isPublished: false,
@@ -142,8 +142,8 @@ export const createAndAddSurveyAsync = createAsyncThunk('survey/createAndAddSurv
         ]
     }
 
-    localStorage.setItem('survey', JSON.stringify(survey));
-    return survey;
+    localStorage.setItem('survey', JSON.stringify(newSurvey));
+    return newSurvey;
 })
 
 
@@ -172,7 +172,7 @@ export const toggleRequirementAsync = createAsyncThunk('survey/toggleRequirement
 })
 
 const initialState = {
-    survey: {
+    buildSurvey: {
         id: 0,
         surveyTitle: 'Untitled Survey',
         description: '',
@@ -194,18 +194,18 @@ export const surveySlice = createSlice({
     initialState,
     reducers: {
         initiateSurvey: (state, action) => {
-            state.survey = action.payload
+            state.buildSurvey = action.payload
         },
 
         setQuestionFocusesState: (state, action) => {
-            state.survey.questions.forEach((question) => {
+            state.buildSurvey.questions.forEach((question) => {
                 question.isFocused = false
             })
         },
 
         setFocus: (state, action) => {
             const { payload: id } = action;
-            state.survey.questions.forEach((question) => {
+            state.buildSurvey.questions.forEach((question) => {
                 if(question.id === id) {
                     question.isFocused = true
                 } else {
@@ -216,23 +216,23 @@ export const surveySlice = createSlice({
 
         setTitle: (state, action) => {
             const { payload: title } = action;
-            state.survey.surveyTitle = title;
+            state.buildSurvey.surveyTitle = title;
         },
 
         setDescription: (state, action) => {
             const { payload: description } = action;
-            state.survey.description = description;
+            state.buildSurvey.description = description;
         },
 
         setQuesionLabel: (state, action) => {
             const { payload: { id, questionLabel } } = action;
-            const question = state.survey.questions.find(question => question.id === id);
+            const question = state.buildSurvey.questions.find(question => question.id === id);
             if(question) question.questionLabel = questionLabel;
         },
 
         setQuestionType: (state, action) => {
             const { payload: { id, type } } = action;
-            for (let question of state.survey.questions) {
+            for (let question of state.buildSurvey.questions) {
                 if(question.id === id){
                     if(type === 'TEXT') question.options = []
                     question.type = type
@@ -244,7 +244,7 @@ export const surveySlice = createSlice({
         setOptionLabel: (state, action) => {
             const { payload: { questionId, optionId, optionLabel } } = action;
 
-            const question = state.survey.questions.find(question => question.id === questionId);
+            const question = state.buildSurvey.questions.find(question => question.id === questionId);
             const option = question.options.find(option => option.id === optionId)
             option.optionLabel = optionLabel
         },
@@ -252,7 +252,7 @@ export const surveySlice = createSlice({
         deleteOption: (state, action) => {
             const { payload: { questionId, optionId } } = action;
 
-            state.survey.questions = state.survey.questions.map((question) => {
+            state.buildSurvey.questions = state.buildSurvey.questions.map((question) => {
                 if(question.id === questionId) {
                     return {
                         ...question,
@@ -265,36 +265,36 @@ export const surveySlice = createSlice({
 
         deleteQuestion: (state, action) => {
             const { payload: { questionId } } = action;
-            state.survey.questions = state.survey.questions.filter((question) => {
+            state.buildSurvey.questions = state.buildSurvey.questions.filter((question) => {
                 if(question.id !== questionId) return question
             })
         },
         
         deleteSurvey: (state, action) => {
-            state.survey = null;
+            state.buildSurvey = null;
         }
     },
     extraReducers: (builder) => {
         builder
             .addCase(addQuestionAsync.fulfilled, (state, action) => {
-                state.survey.questions.forEach((question) => question.isFocused = false);
-                state.survey.questions.push(action.payload);
+                state.buildSurvey.questions.forEach((question) => question.isFocused = false);
+                state.buildSurvey.questions.push(action.payload);
             })
             .addCase(addOptionAsync.fulfilled, (state, action) => {
-                const questions = state.survey.questions.find(question => question.id === action.payload.questionId)
+                const questions = state.buildSurvey.questions.find(question => question.id === action.payload.questionId)
                 questions.options.push({id: action.payload.id, optionLabel: action.payload.optionLabel});
             })
             .addCase(toggleRequirementAsync.fulfilled, (state, action) => {
                 const { payload: { questionId, updatedRequirement} } = action;
-                state.survey.questions.filter((question) => {
+                state.buildSurvey.questions.filter((question) => {
                     if(question.id === questionId) question.isRequired =  updatedRequirement;
                 })
             })
             .addCase(createAndAddSurveyAsync.pending, (state, action) => {
-                state.survey = null;
+                state.buildSurvey = null;
             })
             .addCase(createAndAddSurveyAsync.fulfilled, (state, action) => {
-                state.survey = action.payload;
+                state.buildSurvey = action.payload;
             })
     }
 })

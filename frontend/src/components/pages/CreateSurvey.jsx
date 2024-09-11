@@ -16,7 +16,7 @@ export default function CreateSurveyComponent() {
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
     const dispatch = useDispatch();
     const colourPalette = ['bg-[#FF007F]', 'bg-[#FFDBA4]', 'bg-white']
-    const { survey } = useSelector(state => state.survey) 
+    const { buildSurvey: survey } = useSelector(state => state.survey) 
 
     const updateSurveysBackend = useDebouncedCallback(() => {
         dispatch(fetchAllSurveys());
@@ -59,7 +59,7 @@ export default function CreateSurveyComponent() {
 const TitleCardComponent = ({bgColour}) => {
     const dispatch = useDispatch();
     const { id, surveyTitle, description } = useSelector(state => {
-        return state.survey.survey;
+        return state.survey.buildSurvey;
     });
 
     const updateTitleBackend = useDebouncedCallback((surveyId, surveyTitle) => {
@@ -121,7 +121,7 @@ const TitleCardComponent = ({bgColour}) => {
 const QuestionsComponent = ({bgColour, bgColour2}) => {
     const dispatch = useDispatch();
     const questions = useSelector(state => {
-        return state.survey.survey.questions;
+        return state.survey.buildSurvey.questions;
     })
 
     const questionTypeOptions = [
@@ -414,7 +414,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
     }
 
     const AddQuestionComponent = () => {
-        const { id } = useSelector(state => state.survey.survey);
+        const { id } = useSelector(state => state.survey.buildSurvey);
         const [showAnimation, setShowAnimation] = useState(false);
         const plusIcon = <svg className="size-4 md:size-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
         
@@ -457,7 +457,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
 }
 
 const FooterComponent = ({bgColour}) => {
-    const { id: surveyId } = useSelector(state => state.survey.survey);
+    const { id: surveyId } = useSelector(state => state.survey.buildSurvey);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
