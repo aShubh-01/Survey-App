@@ -7,6 +7,7 @@ import DashboardComponent from './components/pages/Dashboard'
 import CreateSurveyComponent from './components/pages/CreateSurvey'
 import AnalyseSurveyComponent from './components/pages/AnalyseSurvey'
 import UnpublishedSurveysComponent from './components/pages/UnpublishedSurveys'
+import SubmitSurveyComponent from './components/pages/SubmitSurvey'
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
             <Route path='/create' element={<CreateSurveyComponent />} />
             <Route path='/unpublished' element={<UnpublishedSurveysComponent />} />
             <Route path='/analyse' element={<AnalyseSurveyComponent />} />
+            <Route path='/submit/:surveyId' element={<SubmitSurveyComponent />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

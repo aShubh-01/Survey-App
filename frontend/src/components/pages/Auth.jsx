@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import queriousLogo from '../../assets/images/queriousLogo.png';
 import { backendUrl } from '../../config.js'
 import { useNavigate } from 'react-router-dom';
 
-export default function AuthComponent() {
+export default function AuthComponent({navigateTo = '/dashboard'}) {
     const [isEmailSent, setIsEmailSent] = useState(false);
     const [userEmail, setUserEmail] = useState('');
     
@@ -20,7 +20,7 @@ export default function AuthComponent() {
                         <div><EmailInput email={userEmail} setEmail={setUserEmail} setIsEmailSent={setIsEmailSent} /></div>
                     }
                     {isEmailSent &&
-                        <div><CodeInput  email={userEmail}/></div>
+                        <div><CodeInput  email={userEmail} navigateTo={navigateTo}/></div>
                     }
                 </div>
             </div>
@@ -34,7 +34,7 @@ const Heading = () => {
     </div>
 }
 
-const EmailInput = ({email, setEmail, setIsEmailSent}) => {
+export const EmailInput = ({email, setEmail, setIsEmailSent}) => {
 
     function handleEnterEvent (event) {
         if (event.key === 'Enter') sendEmail();
@@ -82,7 +82,7 @@ const SendingMailLoading = () => {
     </div>
 }
 
-const CodeInput = ({email}) => {
+export const CodeInput = ({email, navigateTo}) => {
     const [userCode, setUserCode] = useState('');
     const navigate = useNavigate();
 
@@ -125,7 +125,7 @@ const CodeInput = ({email}) => {
             if(response.status === 200) {
                 localStorage.setItem('queriousToken', response.data.token)
                 alert('Code Valid');
-                navigate('/dashboard');
+                navigate(navigateTo);
             }
         } catch (err) {
             alert('Code Invalid')
