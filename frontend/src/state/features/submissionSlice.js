@@ -17,6 +17,7 @@ export const fetchSurveyAsync = createAsyncThunk('submission/fetchSurvey', async
 
         if(response.data.survey) {
             response.data.survey.questions.forEach((question) => {
+                question.isAnswered = false
                 if(question.type !== 'TEXT') {
                     question.options = question.options.map((option) => ({
                         ...option,
@@ -25,7 +26,6 @@ export const fetchSurveyAsync = createAsyncThunk('submission/fetchSurvey', async
                 }
                 else if(question.type === 'TEXT') {
                     delete question.options;
-                    question.answer = ""
                 }
             })
 
@@ -69,7 +69,7 @@ export const submissionSlice = createSlice({
             const questionIndex = state.data.survey.questions.findIndex(q => q.id == questionId)
 
             if(questionType === 'TEXT') {
-                state.data.survey.questions[questionIndex].answer = userAnswer;
+                state.data.survey.questions[questionIndex].isAnswered = (userAnswer.length < 1 ? false : true)
                 state.data.submissionPayload.userResponse[questionIndex].answer = userAnswer;
 
             } else {
@@ -77,12 +77,15 @@ export const submissionSlice = createSlice({
             
                 switch(questionType) {
                     case 'SINGLE_SELECT': {
-                        state.data.survey.questions[questionIndex].options = state.data.survey.questions[questionIndex].options.map((option) => ({
-                            ...option, 
-                            isChecked: false
-                        }))
-                        state.data.survey.questions[questionIndex].options[optionIndex].isChecked = true
-                        state.data.submissionPayload.userResponse[questionIndex].answer = optionId
+                        if(!isChecked) {
+                            state.data.survey.questions[questionIndex].options = state.data.survey.questions[questionIndex].options.map((option) => ({
+                                ...option, 
+                                isChecked: false
+                            }))
+                            state.data.survey.questions[questionIndex].options[optionIndex].isChecked = true
+                            state.data.submissionPayload.userResponse[questionIndex].answer = optionId
+                            state.data.survey.questions[questionIndex].isAnswered = true
+                        }
                         
                     } break;
     
@@ -91,16 +94,20 @@ export const submissionSlice = createSlice({
                         if(isChecked) {
                             state.data.survey.questions[questionIndex].options[optionIndex].isChecked = false;
                             state.data.submissionPayload.userResponse[questionIndex].answer = answers.filter(answer => answer != optionId)
+                            state.data.survey.questions[questionIndex].isAnswered = (state.data.submissionPayload.userResponse[questionIndex].answer.length < 1 ? false : true)
                         } else {
                             state.data.survey.questions[questionIndex].options[optionIndex].isChecked = true;
                             answers.push(optionId)
                             state.data.submissionPayload.userResponse[questionIndex].answer = answers
+                            state.data.survey.questions[questionIndex].isAnswered = true;
                         }
                     } break;
                 }
             }
+        },
 
-            console.log(current(state))
+        toggleAnonymity: (state, action) => {
+            state.data.submissionPayload.isAnonymous = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -114,7 +121,9 @@ export const submissionSlice = createSlice({
                 state.loading = false;
                 if(action.payload.message === 'Response Already Submitted') {
                     state.isAlreadySubmitted = true
-                } else {
+                } else if(action.payload.message === 'Survey is Closed') {
+                    state.isClosed = true
+                }else {
                     state.data = action.payload;
                 }
             })
@@ -125,5 +134,5 @@ export const submissionSlice = createSlice({
     }
 })
 
-export const { editAnswer } = submissionSlice.actions
+export const { editAnswer, toggleAnonymity } = submissionSlice.actions
 export default submissionSlice.reducer;

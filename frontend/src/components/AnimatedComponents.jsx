@@ -4,6 +4,7 @@ import LoadAuthAnimation from '../assets/animations/Animation - 1722663753436.js
 import PlusLoadingAnimation from '../assets/animations/PlusLoading.json';
 import TripleDotLoadingAnimation from '../assets/animations/TripleDotLoading.json';
 import HourGlassLoadingAnimation from '../assets/animations/HourGlassLoading.json';
+import SubmitLoadingAnimation from '../assets/animations/SubmitLoading.json';
 
 const LoadAnimation = ({animationData}) => {
     const container = useRef(null);
@@ -36,4 +37,8 @@ export const TripleDotLoading = () => {
 
 export const HourGlassLoading = () => {
     return <LoadAnimation animationData={HourGlassLoadingAnimation} />
+}
+
+export const SubmitLoading = () => {
+    return <LoadAnimation animationData={SubmitLoadingAnimation} />
 }

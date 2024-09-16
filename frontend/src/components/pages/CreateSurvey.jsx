@@ -373,7 +373,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
             `}>
                 <div className={`md:w-[28px] md:h-[28px]
                     w-[20px] h-[20px] rounded-full transitions 
-                    transition-transform duraction-300 ${isRequired ? 'md:translate-x-[26px] translate-x-[17px] bg-white shadow-black shadow-sm' : 'translate-x-[-5px] bg-black'}`}>
+                    transition-transform duration-300 ${isRequired ? 'md:translate-x-[26px] translate-x-[17px] bg-white shadow-black shadow-sm' : 'translate-x-[-5px] bg-black'}`}>
                 </div>
             </div>
         </button>
