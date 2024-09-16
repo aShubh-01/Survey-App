@@ -126,9 +126,18 @@ const getSurvey = async(req, res) => {
             select: { id: true }
         })
     
-        // if(isAlreadySubmitted.id) return res.status(200).json({
-        //     message: 'Response Already Submitted'
-        // })
+        if(isAlreadySubmitted) return res.status(200).json({
+            message: 'Response Already Submitted'
+        })
+
+        const { isClosed } = await prisma.survey.findFirst({
+            where: { id: surveyId },
+            select: { isClosed: true }
+        })
+
+        if(isClosed) return res.status(200).json({
+            message: 'Survey is Closed'
+        })
     
         const survey = await prisma.survey.findFirst({
             where: {
