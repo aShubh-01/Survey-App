@@ -56,7 +56,7 @@ const SubmissionFormComponent = ({surveyId}) => {
                 component={
                     <div>
                         <img src={submitSurveyQueriousLogo} 
-                            className='md:h-[10px] h-[80px]'
+                            className='md:h-[150px] h-[80px]'
                         />
                         <div className='md:text-[26px] 
                         text-[14px] flex justify-center font-bold'>You've submitted your response to this survey</div>
