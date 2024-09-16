@@ -56,10 +56,10 @@ const SubmissionFormComponent = ({surveyId}) => {
                 component={
                     <div>
                         <img src={submitSurveyQueriousLogo} 
-                            className='md:h-[150px] h-[75px]'
+                            className='md:h-[10px] h-[80px]'
                         />
-                        <div className='md:text-[26px] md:pl-6
-                            pl-1 text-[14px] font-bold'>You've submitted your response to this survey</div>
+                        <div className='md:text-[26px] 
+                        text-[14px] flex justify-center font-bold'>You've submitted your response to this survey</div>
                     </div>
             }/>
         }
@@ -70,10 +70,10 @@ const SubmissionFormComponent = ({surveyId}) => {
                 component={
                     <div>
                         <img src={submitSurveyQueriousLogo} 
-                            className='md:h-[150px] h-[75px]'
+                            className='md:h-[150px] h-[80px]'
                         />
-                        <div className='md:text-[26px] md:pl-5
-                            pl-[1px] text-[14px] font-bold'>This survey is not accepting responses currently</div>
+                        <div className='md:text-[26px]
+                            flex justify-center text-[14px] font-bold'>This survey is not accepting responses currently</div>
                     </div>
                 }
             />
