@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import AuthComponent from './Auth';
 import { fetchSurveyAsync } from '../../state/features/submissionSlice'
@@ -56,7 +56,7 @@ const SubmissionFormComponent = ({surveyId}) => {
                 component={
                     <div>
                         <img src={submitSurveyQueriousLogo} 
-                            className='md:h-[10px] h-[80px]'
+                            className='md:h-[150px] h-[80px]'
                         />
                         <div className='md:text-[26px] 
                         text-[14px] flex justify-center font-bold'>You've submitted your response to this survey</div>
@@ -84,7 +84,7 @@ const SubmissionFormComponent = ({surveyId}) => {
 
 const SurveyComponent = () => {
 
-    return <div className='md:w-[700px]
+    return <div className='md:w-[700px] md:p-2
             p-1 my-2 w-[320px] bg-white rounded-md'>
         <SurveyFormHeadingComponent />
         <hr className='border-black'/>
@@ -220,23 +220,30 @@ const SurveyFormFooterComponent = () => {
     const [currentIsAnonymous, setIsAnonymous] = useState(isAnonymous)
     const [isLoading, setIsLoading] = useState(false);
     const submitButtonData = isLoading ? <div className='md:max-h-[60px] md:min-w-[350px] max-h-[40px] max-w-[185px] flex justify-center' style={{transform: 'scale(1.5)', transformOrigin: 'center'}}><SubmitLoading /></div> : <div>Submit</div>
+    const AnonymousButtonData = isAnonymous ? 
+        <svg className={`md:size-6 size-4`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+        </svg> :  
+        <svg className={`md:size-6 size-4`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>;
 
-    const toggleIsAnonymous = useDebouncedCallback(() => {
+    const toggleIsAnonymous = useCallback(() => {
         dispatch(toggleAnonymity(!currentIsAnonymous))
         setIsAnonymous(!currentIsAnonymous)
-    }, 0)
+    })
 
     async function submitResponse () {
+        setIsLoading(true)
         for(let index = 0; index < survey.questions.length; index++) {
             if(survey.questions[index].isRequired) {
                 if(!survey.questions[index].isAnswered){
+                    setIsLoading(false)
                     alert('Please attempt all the required questions');
                     return;
                 }
             }
         }
-
-        setIsLoading(true)
 
         try {
             await axios({
@@ -256,22 +263,23 @@ const SurveyFormFooterComponent = () => {
         }
     }
 
-    return <div className='md:p-2 m-[1px] my-1 p-1 rounded-md bg-blue-300 flex justify-between'>
+    return <div className={`md:p-2 m-[1px] my-1 p-1 rounded-md bg-blue-300 flex justify-between ${isLoading ? 'pointer-events-none' : 'pointer-events-auto'}`}>
         <button onClick={submitResponse}>
             <div className={`${isLoading ? '' : 'md:p-2 md:px-32 py-1 px-[60px]'} md:text-[30px] text-[20px] font-semibold hover:bg-white hover:text-blue-300
                 bg-slate-900 text-white border-black rounded-md items-center transform-colours duration-100 ease-in`}>
                 {submitButtonData}
             </div>
         </button>
-        <div className='flex justify-end md:gap-1 gap-[12px]'>
-            <div className='md:text-[20px] md:w-[210px] md:grid md:items-center
-                text-[12px] w-[60px]'>Submit as Anonymous</div>
+        <div className='flex justify-start md:gap-1 gap-[7px] pr-1'>
+            <div className='md:text-[20px] md:w-[210px] grid items-center
+                text-[11px] w-[60px]'>Keep me Anonymous</div>
             <button onClick={toggleIsAnonymous}>
                 <div className={`md:h-[30px] md:w-[70px] rounded-full flex items-center
-                    h-[18px] w-9 transition duration-300 bg-${currentIsAnonymous ? 'white' : 'blue-400'}`}>
-                    <div className={`md:h-[35px] md:w-[35px]
-                        h-[20px] w-[20px] transition-transform duration-300 rounded-full ${currentIsAnonymous ? 'md:translate-x-[35px] translate-x-[18px] shadow-black shadow-sm bg-black' : 'translate-x-[-3px] bg-white'}`}>
-
+                    h-[18px] w-9 transition duration-300 bg-${currentIsAnonymous ? 'white' : 'blue-400'}    
+                `}>
+                    <div className={`md:h-[35px] md:w-[35px] font-semibold md:text-[15px] flex justify-center place-items-center
+                        h-[21px] w-[21px] transition-transform duration-300 text-[10px] rounded-full ${currentIsAnonymous ? 'text-white md:translate-x-[35px] translate-x-[18px] shadow-black shadow-sm bg-black' : 'translate-x-[-3px] bg-white'}`}>
+                            {AnonymousButtonData}
                     </div>
                 </div>
             </button>

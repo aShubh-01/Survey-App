@@ -1,13 +1,22 @@
 import { useEffect } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import { useNavigate } from 'react-router-dom';
-import unpublishedSurveysBackground from '../../assets/images/unpublishedSurveysBackground.png'
+import unpublishedSurveysBackground from '../../assets/images/unpublishedSurveysBackground.png';
+import { createAndAddSurveyAsync } from '../../state/features/surveySlice';
+import { useDispatch } from 'react-redux';
 
 export default function UnpublishedSurveysComponent(){
     let key = 1;
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
     const surveys = JSON.parse(localStorage.getItem('unpublishedSurveys'))
+
+    const createSurvey = async () => {
+        localStorage.removeItem('survey');
+        dispatch(createAndAddSurveyAsync({surveyTitle: 'Untitled Survey', questionLabel: 'Untitled Question', type: 'SINGLE_SELECT', optionLabel: 'Untitled Option'}))
+        navigate('/create');
+    }
    
     if(surveys.length < 1) {
         return <div className='h-screen flex justify-center'
@@ -17,7 +26,7 @@ export default function UnpublishedSurveysComponent(){
         }}>
         <span className='md:h-[50px] md:text-[25px] md:p-2 md:w-auto
             h-[65px] w-[300px] bg-white text-center my-96 p-1 text-[20px] font-bold rounded-md shadow-md shadow-black'>
-            You dont have any unpublished surveys
+            No Unpublished Surveys {':('} Create a <button className='px-2 rounded-md bg-black text-white' onClick={createSurvey}>New One!</button>
         </span>
         </div>
     }

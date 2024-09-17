@@ -5,6 +5,8 @@ import PlusLoadingAnimation from '../assets/animations/PlusLoading.json';
 import TripleDotLoadingAnimation from '../assets/animations/TripleDotLoading.json';
 import HourGlassLoadingAnimation from '../assets/animations/HourGlassLoading.json';
 import SubmitLoadingAnimation from '../assets/animations/SubmitLoading.json';
+import LineLoadingAnimation from '../assets/animations/LineLoading.json'
+import NewSurveyLoadingAnimation from '../assets/animations/NewSurveyLoading.json'
 
 const LoadAnimation = ({animationData}) => {
     const container = useRef(null);
@@ -41,4 +43,12 @@ export const HourGlassLoading = () => {
 
 export const SubmitLoading = () => {
     return <LoadAnimation animationData={SubmitLoadingAnimation} />
+}
+
+export const LineLoading = () => {
+    return <LoadAnimation animationData={LineLoadingAnimation} />
+}
+
+export const NewSurveyLoading = () => {
+    return <LoadAnimation animationData={NewSurveyLoadingAnimation} />
 }

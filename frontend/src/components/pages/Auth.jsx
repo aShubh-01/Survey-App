@@ -3,6 +3,7 @@ import axios from 'axios';
 import queriousLogo from '../../assets/images/queriousLogo.png';
 import { backendUrl } from '../../config.js'
 import { useNavigate } from 'react-router-dom';
+import { TripleDotLoading } from '../AnimatedComponents.jsx';
 
 export default function AuthComponent({navigateTo = '/dashboard'}) {
     const [isEmailSent, setIsEmailSent] = useState(false);
@@ -35,27 +36,35 @@ const Heading = () => {
 }
 
 export const EmailInput = ({email, setEmail, setIsEmailSent}) => {
-
+    const [isLoading, setIsLoading] = useState(false);
+    let sendButtonData = isLoading ? <div className='md:h-[30px] md:w-[50px] h-[27px] w-[40px] flex justify-center'><TripleDotLoading /></div> : 'Send'
     function handleEnterEvent (event) {
         if (event.key === 'Enter') sendEmail();
     }
 
     const sendEmail = async () => {
-        const response = await axios({
-            url: `${backendUrl}/users/send`,
-            method: 'POST',
-            headers: {
-                'Content-Type': "application/json"
-            },
-            data: {
-                'email': email
+        setIsLoading(true)
+        try {
+            const response = await axios({
+                url: `${backendUrl}/users/send`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                data: {
+                    'email': email
+                }
+    
+            })
+            
+            if(response.status === 200){
+                alert('Email Sent');
+                setIsLoading(false);
+                setIsEmailSent(true);
             }
-
-        })
-        
-        if(response.status === 200){
-            alert('Email Sent');
-            setIsEmailSent(true);
+        } catch (err) {
+            setIsLoading(false);
+            alert('Unable to send email');
         }
     }
 
@@ -70,45 +79,52 @@ export const EmailInput = ({email, setEmail, setIsEmailSent}) => {
         <div>
             <button onClick={sendEmail} className='md:py-[8px] md:px-[40px] md:text-[20px] md:rounded-[8px] md:border-[2px] md:font-semibold
                 p-[2px] px-[20px] bg-green-400 text-[18px] text-white border-black border-[2px] font-semibold rounded-[5px]'>
-                Send
+                {sendButtonData}
             </button>
         </div>
     </div>
 }
 
-const SendingMailLoading = () => {
-    return <div>
-
-    </div>
-}
-
 export const CodeInput = ({email, navigateTo}) => {
+    const [isVerifyLoading, setIsVerifyLoading] = useState(false);
+    const [isResendLoading, setIsResendLoading] = useState(false);
     const [userCode, setUserCode] = useState('');
     const navigate = useNavigate();
+
+    let resendButtonData = isResendLoading ? <div className='md:h-[35px] md:w-[85px] h-[27px] w-[60px] flex justify-center'><TripleDotLoading /></div> : 'Resend'
+    let verifyButtonData = isVerifyLoading ? <div className='md:h-[35px] md:w-[70px] h-[27px] w-[50px] flex justify-center'><TripleDotLoading /></div> : 'Verify'
 
     function handleEnterEvent (event) {
         if (event.key === 'Enter') verifyCode();
     }
 
     async function resendEmail () {
-        const response = await axios({
-            url: `${backendUrl}/users/send`,
-            method: 'POST',
-            headers: {
-                'Content-Type': "application/json"
-            },
-            data: {
-                'email': email
+        setIsResendLoading(true);
+        try {
+            const response = await axios({
+                url: `${backendUrl}/users/send`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                data: {
+                    'email': email
+                }
+                
+            })
+    
+            if(response.status === 200){
+                setIsResendLoading(false)
+                alert('Email Sent');
             }
-            
-        })
-
-        if(response.status === 200){
-            alert('Email Sent');
+        } catch (err) {
+            setIsResendLoading(false);
+            alert('Unable to resend email')
         }
     }
 
     async function verifyCode () {
+        setIsVerifyLoading(true);
         try {
             const response = await axios({
                 url: `${backendUrl}/users/verify`,
@@ -124,10 +140,11 @@ export const CodeInput = ({email, navigateTo}) => {
     
             if(response.status === 200) {
                 localStorage.setItem('queriousToken', response.data.token)
-                alert('Code Valid');
+                setIsVerifyLoading(false);
                 navigate(navigateTo);
             }
         } catch (err) {
+            setIsVerifyLoading(false);
             alert('Code Invalid')
         }
     }
@@ -145,13 +162,13 @@ export const CodeInput = ({email, navigateTo}) => {
             <div><button className='md:p-[10px] md:px-[45px] md:text-[23px] md:font-bold md:tracking-wide md:border-[3px] md:rounded-[10px]
                     p-[5px] px-[44px] bg-green-400 text-[18px] text-white font-semibold tracking-tight border-black border-[2px] rounded-[5px]'
                     onClick={resendEmail}>
-                Resend
+                {resendButtonData}
                 </button>
             </div>
             <div><button className='md:p-[10px] md:px-[45px] md:text-[23px] md:font-bold md:tracking-wide md:border-[3px] md:rounded-[10px]
                     p-[5px] px-[44px] bg-blue-400 text-[18px] text-white font-semibold tracking-tight border-black border-[2px] rounded-[5px]'
                     onClick={verifyCode}>
-                Verify
+                {verifyButtonData}
                 </button>
             </div>
         </div>

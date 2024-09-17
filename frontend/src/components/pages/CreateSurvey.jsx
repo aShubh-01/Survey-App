@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { backendUrl } from '../../config';
 import { useMediaQuery } from 'react-responsive';
@@ -8,19 +8,16 @@ import { initiateSurvey, deleteQuestion, deleteSurvey, setQuestionFocusesState, 
     setQuestionType, setOptionLabel, deleteOption, setDescription, setTitle, addOptionAsync,
     addQuestionAsync, toggleRequirementAsync} from '../../state/features/surveySlice';
 import { fetchAllSurveys } from '../../state/features/fetchSurveysSlice';
+import { createAndAddSurveyAsync } from '../../state/features/surveySlice';
 import useDebouncedCallback from '../../state/customHooks/debounceCallback';
 import { useNavigate } from 'react-router-dom';
-import { PlusLoading, TripleDotLoading } from '../AnimatedComponents';
+import { PlusLoading, TripleDotLoading, NewSurveyLoading } from '../AnimatedComponents';
 
 export default function CreateSurveyComponent() {
-    const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
+    const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' }); 
     const dispatch = useDispatch();
     const colourPalette = ['bg-[#FF007F]', 'bg-[#FFDBA4]', 'bg-white']
     const { buildSurvey: survey } = useSelector(state => state.survey) 
-
-    const updateSurveysBackend = useDebouncedCallback(() => {
-        dispatch(fetchAllSurveys());
-    }, 3000);
 
     useEffect(() => {
         const currentSurvey = JSON.parse(localStorage.getItem('survey'));
@@ -29,12 +26,17 @@ export default function CreateSurveyComponent() {
             dispatch(setQuestionFocusesState())
         }
     }, []);
-
-    useEffect(() => {
-        updateSurveysBackend()
-    }, [survey])
-
-    if(survey === null) return <div>Loading survey</div>
+    
+    if(survey === null) return <div className={`flex justify-center items-center min-h-screen ${colourPalette[0]}`}
+        style={{
+            backgroundSize: isSmallScreen ? '500px' : `1000px`,
+            backgroundImage: `url(${createSurveyBackgroundImage})`
+        }}
+        >
+           <div className='md:h-[150px] md:w-[150px] h-20 w-20 bg-white rounded-lg'>
+                <NewSurveyLoading />
+           </div>
+    </div>
 
     return (
         <>
@@ -45,15 +47,30 @@ export default function CreateSurveyComponent() {
                     alignItems: 'flex-start',
                 }}
             >
-                    <div className='md:p-4
-                        m-4 mb-10 p-3 rounded-md md:w-[800px] w-[315px] bg-white'>
-                    <TitleCardComponent bgColour={colourPalette[1]}/>
-                    <QuestionsComponent bgColour={colourPalette[1]} bgColour2={colourPalette[2]} />
-                    <FooterComponent bgColour={colourPalette[1]}/>
-                </div>
+                <BuildSurveyComponent colourPalette={colourPalette} />
             </div>
         </>
     )
+}
+
+const BuildSurveyComponent = ({colourPalette}) => {
+    const { buildSurvey: survey } = useSelector(state => state.survey)
+    const dispatch = useDispatch();
+
+    const updateSurveysBackend = useDebouncedCallback(() => {
+        dispatch(fetchAllSurveys());
+    }, 3000);
+    
+    useEffect(() => {
+        updateSurveysBackend()
+    }, [survey])
+
+    return <div className='md:p-4
+        m-4 mb-10 p-3 rounded-md md:w-[800px] w-[315px] bg-white'>
+        <TitleCardComponent bgColour={colourPalette[1]}/>
+        <QuestionsComponent bgColour={colourPalette[1]} bgColour2={colourPalette[2]} />
+        <FooterComponent bgColour={colourPalette[1]}/>
+    </div>
 }
 
 const TitleCardComponent = ({bgColour}) => {
@@ -112,7 +129,7 @@ const TitleCardComponent = ({bgColour}) => {
                         dispatch(setDescription(event.target.value))
                         updateDescriptionBackend(id, event.target.value)
                     }}
-                ></textarea>
+                />
             </span>
         </div>
     </div>
@@ -133,7 +150,6 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
     const QuestionComponent = ({question}) => {
         const dispatch = useDispatch();
         const [currentQuestionLabel, setCurrentQuestionLabel] = useState(question.questionLabel);
-        const bgColour = '#F5DEB3'
 
         const updateQuestionStateBackend = useDebouncedCallback((id, questionLabel) => {
             dispatch(setQuesionLabel({ id, questionLabel }));
@@ -463,8 +479,8 @@ const FooterComponent = ({bgColour}) => {
 
     function cleanUp() {
         localStorage.removeItem('survey');
-        dispatch(deleteSurvey());
         navigate('/dashboard');
+        dispatch(deleteSurvey());
     }
 
     const ButtonComponent = ({label, onClickDo}) => {
