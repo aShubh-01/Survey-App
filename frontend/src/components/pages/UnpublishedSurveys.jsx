@@ -24,8 +24,8 @@ export default function UnpublishedSurveysComponent(){
             backgroundSize: isSmallScreen ? '500px' : `1000px`,
             backgroundImage: `url(${unpublishedSurveysBackground})`
         }}>
-        <span className='md:h-[50px] md:text-[25px] md:p-2 md:w-auto
-            h-[65px] w-[300px] bg-white text-center my-96 p-1 text-[20px] font-bold rounded-md shadow-md shadow-black'>
+        <span className='md:h-[53px] md:text-[25px] md:p-2 md:w-auto
+            h-[70px] w-[300px] bg-white text-center my-96 p-1 text-[20px] font-bold rounded-md shadow-md shadow-black'>
             No Unpublished Surveys {':('} Create a <button className='px-2 rounded-md bg-black text-white' onClick={createSurvey}>New One!</button>
         </span>
         </div>
