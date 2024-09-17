@@ -6,6 +6,7 @@ import { createAndAddSurveyAsync } from '../../state/features/surveySlice';
 import dashboardLogo from '../../assets/images/dashboardLogo.png';
 import queriousBackground from '../../assets/images/queriousBackground.png';
 import { useMediaQuery } from 'react-responsive';
+import { LineLoading } from '../AnimatedComponents';
 
 export default function DashboardComponent() {
     const navigate = useNavigate();
@@ -69,13 +70,8 @@ const PublishedSurveysComponent = ({setIsSurveysFetched, isSmallScreen}) => {
         dispatch(fetchAllSurveys())
     }, [dispatch])
 
-    if(loading) return <div>Loading</div>
-    if(error) return <div>Unable to fetch published surveys</div>
-
-    setIsSurveysFetched(true);
-
-    return <div className='md:text-[21px]'>
-        <table className='md:w-[1000px] md:border-4 bg-black
+    const PublishedSurveyHeadComponent = () => {
+        return <table className='md:w-[1000px] md:border-4 bg-black
             border-2 border-black'>
             <thead>
                 <tr>
@@ -88,11 +84,22 @@ const PublishedSurveysComponent = ({setIsSurveysFetched, isSmallScreen}) => {
                 </tr>
             </thead>
         </table>
+    }
+
+    const PublishedSurveyMainBody = () => {
+        if(loading) return <BackgroundWrapper text={<div style={{
+            height: '25px',
+            transformOrigin: 'center',
+            width: '270px',
+            transform: 'scale(0.4)'
+        }}
+        ><LineLoading /></div>}/>
+        if(error) return <BackgroundWrapper text='Unable to fetch published surveys'/>
+        setIsSurveysFetched(true);
+
+        return <div>
         {(surveys.publishedSurveys.length < 1) &&
-            <div className='
-                font-bold mt-1 p-4 text-center rounded-md border-black border-2 bg-slate-900'>
-                You have not published any surveys yet
-            </div>
+            <BackgroundWrapper text='You have not published any survey'/>
         }
         {(surveys.publishedSurveys.length > 0) &&
         <div className='md:max-h-[400px] bg-slate-800 rounded-lg
@@ -138,5 +145,18 @@ const PublishedSurveysComponent = ({setIsSurveysFetched, isSmallScreen}) => {
             </table>
         </div>
         }
+        </div>
+    }
+
+    return <div className='md:text-[21px]'>
+        <PublishedSurveyHeadComponent />
+        <PublishedSurveyMainBody />
     </div> 
+}
+
+const BackgroundWrapper = ({text}) => {
+    return <div className='flex justify-center
+            font-bold min-w-[305px] mt-1 p-4 text-center rounded-md border-black border-2 bg-slate-900'>
+        {text}
+    </div>
 }

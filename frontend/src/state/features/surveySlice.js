@@ -124,6 +124,7 @@ export const createAndAddSurveyAsync = createAsyncThunk('survey/createAndAddSurv
     const newSurvey = {
         id: surveyId,
         surveyTitle: payload.surveyTitle,
+        description: '',
         isPublished: false,
         questions: [
             {
@@ -271,7 +272,7 @@ export const surveySlice = createSlice({
         },
         
         deleteSurvey: (state, action) => {
-            state.buildSurvey = null;
+            delete state.buildSurvey;
         }
     },
     extraReducers: (builder) => {
