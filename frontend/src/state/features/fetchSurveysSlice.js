@@ -3,7 +3,6 @@ import { backendUrl } from '../../config';
 import axios from 'axios';
 
 export const fetchAllSurveys = createAsyncThunk('allSurveys/fetchData', async () => {
-    console.log('call')
     try {
         const response = await axios({
             url: `${backendUrl}/surveys/all`,

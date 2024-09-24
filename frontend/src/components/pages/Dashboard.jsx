@@ -111,7 +111,7 @@ const PublishedSurveysComponent = ({setIsSurveysFetched, isSmallScreen}) => {
                             const surveyTitle = survey.surveyTitle;
 
                             function analyseSurvey() {
-                                //localStorage.setItem('surveyId', survey.id);
+                                localStorage.setItem('surveyId', survey.id);
                                 navigate('/analyse')
                             }
 
