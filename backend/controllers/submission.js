@@ -4,16 +4,114 @@ const { prisma, jwtSecret } = require('../config')
 const fetchResponses = async (req, res) => {
     const surveyId = parseInt(req.params.id);
     try {
-        const responses = await prisma.submission.findMany({
-            where: { surveyId, isDeleted: false },
+        let responsesData = await prisma.submission.findMany({
+            where: { surveyId },
             select: {
+                users: { 
+                    select: { email: true }
+                },
                 isAnonymous: true,
-                
+                answers: {
+                    select: {
+                        question: { select: { questionLabel: true } },
+                        multipleChoiceResponse: { select: { optionLabel: true } },
+                        checkboxResponses: { select: { option: { select: { optionLabel: true } } } },
+                        textResponse: true,
+                    }
+                }
+            },
+        })
+
+        let statisticsData = await prisma.survey.findFirst({
+            where: { id: surveyId },
+            select: {
+                surveyTitle: true,
+                description: true,
+                    questions: {
+                        where: { surveyId },
+                        select: {
+                            id: true,
+                            questionLabel: true,
+                            type: true,
+                            _count: { select: { attempts: true } },
+                            attempts: { 
+                                where: { textResponse: { not: null } },
+                                select: { textResponse: true }
+                            },
+                            options: {
+                                where: { question: { surveyId } },
+                                select: {
+                                optionLabel: true,
+                                _count: { select: {
+                                    multipleChoiceReponses: true,
+                                    checkboxesResponses: true,
+                                }},
+                            },
+                        }
+                    }
+                }
             }
         })
 
+        statisticsData = statisticsData.questions.sort((a, b) => a.id - b.id)
+        
+        statisticsData = statisticsData.map((question) => {
+            switch(question.type) {
+                case 'SINGLE_SELECT' : {
+                    question.attempts = question._count.attempts;
+                    question.options = question.options.map((option) => {
+                        option.votes = option._count.multipleChoiceReponses;
+                        delete option._count;
+                        return option
+                    })
+                } break;
+
+                case 'MULTIPLE_SELECT' : {
+                    question.attempts = question._count.attempts;
+                    question.options = question.options.map((option) => {
+                        option.votes = option._count.checkboxesResponses;
+                        delete option._count;
+                        return option
+                    })
+                } break;
+
+                case 'TEXT' : {
+                    question.textResponses = question.attempts.map((textResponse) => {
+                        return textResponse.textResponse;
+                    });
+                    question.attempts = question._count.attempts;
+                    delete question.options;
+                } break;
+            }
+            delete question._count;
+            return question;
+        })
+
+        responsesData = responsesData.map((response) => {
+            if(!response.isAnonymous) response.userEmail = response.users.email
+            delete response.users
+
+            response.answers = response.answers.map((answer) => {
+                answer.questionLabel = answer.question.questionLabel;
+                delete answer.question;
+
+                if(answer.checkboxResponses.length < 1) delete answer.checkboxResponses
+                else answer.checkboxResponses = answer.checkboxResponses.map((option) => {
+                    return option.option.optionLabel;
+                })
+
+                if(answer.multipleChoiceResponse == null) delete answer.multipleChoiceResponse
+                else answer.multipleChoiceResponse = answer.multipleChoiceResponse.optionLabel
+
+                if(answer.textResponse == null) delete answer.textResponse
+                return answer
+            })
+            return response
+        })
+
         res.status(200).json({
-            responses,
+            statisticsData: statisticsData,
+            responsesData: responsesData,
             message: "Responses fetched!"
         })
 
