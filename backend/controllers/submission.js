@@ -25,6 +25,7 @@ const fetchResponses = async (req, res) => {
         let statisticsData = await prisma.survey.findFirst({
             where: { id: surveyId },
             select: {
+                isClosed: true,
                 surveyTitle: true,
                 description: true,
                     questions: {
@@ -52,6 +53,14 @@ const fetchResponses = async (req, res) => {
                 }
             }
         })
+
+        const { surveyTitle, description, isClosed } = statisticsData;
+        const surveyInfo = { 
+            surveyId: surveyId, 
+            isClosed: isClosed, 
+            surveyTitle : surveyTitle,
+            description : description
+        }
 
         statisticsData = statisticsData.questions.sort((a, b) => a.id - b.id)
         
@@ -110,6 +119,7 @@ const fetchResponses = async (req, res) => {
         })
 
         res.status(200).json({
+            surveyInfo,
             statisticsData: statisticsData,
             responsesData: responsesData,
             message: "Responses fetched!"
