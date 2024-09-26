@@ -5,7 +5,7 @@ const fetchResponses = async (req, res) => {
     const surveyId = parseInt(req.params.id);
     try {
         let responsesData = await prisma.submission.findMany({
-            where: { surveyId },
+            where: { surveyId: surveyId },
             select: {
                 users: { 
                     select: { email: true }
@@ -13,7 +13,7 @@ const fetchResponses = async (req, res) => {
                 isAnonymous: true,
                 answers: {
                     select: {
-                        question: { select: { questionLabel: true } },
+                        question: { select: { id: true } },
                         multipleChoiceResponse: { select: { optionLabel: true } },
                         checkboxResponses: { select: { option: { select: { optionLabel: true } } } },
                         textResponse: true,
@@ -25,46 +25,53 @@ const fetchResponses = async (req, res) => {
         let statisticsData = await prisma.survey.findFirst({
             where: { id: surveyId },
             select: {
-                isClosed: true,
+                id: true,
                 surveyTitle: true,
                 description: true,
-                    questions: {
-                        where: { surveyId },
-                        select: {
-                            id: true,
-                            questionLabel: true,
-                            type: true,
-                            _count: { select: { attempts: true } },
-                            attempts: { 
-                                where: { textResponse: { not: null } },
-                                select: { textResponse: true }
-                            },
-                            options: {
-                                where: { question: { surveyId } },
-                                select: {
-                                optionLabel: true,
-                                _count: { select: {
-                                    multipleChoiceReponses: true,
-                                    checkboxesResponses: true,
-                                }},
-                            },
-                        }
+                isClosed: true,
+                questions: {
+                    where: { surveyId },
+                    select: {
+                        id: true,
+                        questionLabel: true,
+                        type: true,
+                        _count: { select: { attempts: true } },
+                        attempts: { 
+                            where: { textResponse: { not: null } },
+                            select: { textResponse: true }
+                        },
+                        options: {
+                            where: { question: { surveyId } },
+                            select: {
+                            optionLabel: true,
+                            _count: { select: {
+                                multipleChoiceReponses: true,
+                                checkboxesResponses: true,
+                            }},
+                        }}
                     }
                 }
             }
         })
 
-        const { surveyTitle, description, isClosed } = statisticsData;
-        const surveyInfo = { 
-            surveyId: surveyId, 
-            isClosed: isClosed, 
-            surveyTitle : surveyTitle,
-            description : description
+        statisticsData = {
+            ...statisticsData,
+            questions: statisticsData.questions.sort((a, b) => a.id - b.id)
         }
 
-        statisticsData = statisticsData.questions.sort((a, b) => a.id - b.id)
+        const surveyInfo = {
+            surveyId: surveyId,
+            surveyTitle: statisticsData.surveyTitle,
+            description: statisticsData.description,
+            isClosed: statisticsData.isClosed,
+            questions: statisticsData.questions.map((question) => {
+                const id =  question.id;
+                const questionLabel = question.questionLabel
+                return { id, questionLabel }
+            })
+        }
         
-        statisticsData = statisticsData.map((question) => {
+        statisticsData = statisticsData.questions.map((question) => {
             switch(question.type) {
                 case 'SINGLE_SELECT' : {
                     question.attempts = question._count.attempts;
@@ -101,7 +108,7 @@ const fetchResponses = async (req, res) => {
             delete response.users
 
             response.answers = response.answers.map((answer) => {
-                answer.questionLabel = answer.question.questionLabel;
+                answer.questionId = answer.question.id;
                 delete answer.question;
 
                 if(answer.checkboxResponses.length < 1) delete answer.checkboxResponses
@@ -113,6 +120,7 @@ const fetchResponses = async (req, res) => {
                 else answer.multipleChoiceResponse = answer.multipleChoiceResponse.optionLabel
 
                 if(answer.textResponse == null) delete answer.textResponse
+                
                 return answer
             })
             return response

@@ -8,7 +8,6 @@ import { initiateSurvey, deleteQuestion, deleteSurvey, setQuestionFocusesState, 
     setQuestionType, setOptionLabel, deleteOption, setDescription, setTitle, addOptionAsync,
     addQuestionAsync, toggleRequirementAsync} from '../../state/features/surveySlice';
 import { fetchAllSurveys } from '../../state/features/fetchSurveysSlice';
-import { createAndAddSurveyAsync } from '../../state/features/surveySlice';
 import useDebouncedCallback from '../../state/customHooks/debounceCallback';
 import { useNavigate } from 'react-router-dom';
 import { PlusLoading, TripleDotLoading, NewSurveyLoading } from '../AnimatedComponents';

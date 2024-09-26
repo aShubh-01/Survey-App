@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setIsClosed } from '../features/analyseSurvey';
 import { backendUrl } from '../../config' 
 import axios from 'axios';
 
-export const useGetAnalysisData = (surveyId) => {
+export default function useGetAnalysisData (surveyId) {
+    const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(true);
     const [analysisData, setAnalysisData] = useState();
 
@@ -15,7 +18,9 @@ export const useGetAnalysisData = (surveyId) => {
                 'Authorization': localStorage.getItem('queriousToken')
             }
         }).then((res) => {
+            const isClosed = res.data.surveyInfo.isClosed;
             setAnalysisData(res.data);
+            dispatch(setIsClosed({isClosed: isClosed}))
             setIsLoading(false);
         }).catch((err) => {
             setIsLoading(true);

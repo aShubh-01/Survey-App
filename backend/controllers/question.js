@@ -90,15 +90,9 @@ const deleteQuestion = async (req, res) => {
     try {
         const questionId = parseInt(req.params.id);
 
-        await prisma.$transaction(async (prisma) => {
-            await prisma.option.deleteMany({
-                where: { questionId: questionId }
-            })
-
-            await prisma.question.delete({
-                where: { id: questionId }
-            });
-        })
+        await prisma.question.delete({
+            where: { id: questionId }
+        });
         
         return res.status(200).json({
             message: "Deleted Question!"
