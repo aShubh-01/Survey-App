@@ -256,26 +256,8 @@ const deleteSurvey = async (req, res) => {
         const surveyId = parseInt(req.params.id);
         const userId = req.userId;
 
-        await prisma.$transaction(async (prisma) => {
-            await prisma.answer.deleteMany({
-                where: { submission: { surveyId }}
-            })
-
-            await prisma.option.deleteMany({
-                where: { question: { surveyId }}
-            })
-
-            await prisma.question.deleteMany({
-                where: { surveyId: surveyId }
-            })
-
-            await prisma.submission.deleteMany({
-                where: { surveyId: surveyId }
-            })
-
-            await prisma.survey.delete({
-                where: { id: surveyId, userId }
-            });
+        await prisma.survey.delete({
+            where: { id: surveyId, userId }
         });
 
         return res.status(200).json({
