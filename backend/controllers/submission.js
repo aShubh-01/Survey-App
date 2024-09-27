@@ -43,6 +43,7 @@ const fetchResponses = async (req, res) => {
                         options: {
                             where: { question: { surveyId } },
                             select: {
+                            id: true,
                             optionLabel: true,
                             _count: { select: {
                                 multipleChoiceReponses: true,
@@ -66,8 +67,9 @@ const fetchResponses = async (req, res) => {
             isClosed: statisticsData.isClosed,
             questions: statisticsData.questions.map((question) => {
                 const id =  question.id;
-                const questionLabel = question.questionLabel
-                return { id, questionLabel }
+                const questionLabel = question.questionLabel;
+                const type = question.type;
+                return { id, questionLabel, type }
             })
         }
         
@@ -103,23 +105,34 @@ const fetchResponses = async (req, res) => {
             return question;
         })
 
+        statisticsData = statisticsData.map((question) => {
+            if(question.type != 'TEXT') {
+                question.options = question.options.sort((a, b) => a.id - b.id)
+            }
+            return question;
+        })
+
         responsesData = responsesData.map((response) => {
             if(!response.isAnonymous) response.userEmail = response.users.email
             delete response.users
 
             response.answers = response.answers.map((answer) => {
                 answer.questionId = answer.question.id;
+
+                if(answer.checkboxResponses.length >= 1) {
+                    answer.userAnswer = answer.checkboxResponses.map((option) => {
+                        return option.option.optionLabel;
+                    })
+                } 
+
+                if(answer.multipleChoiceResponse != null) answer.userAnswer = answer.multipleChoiceResponse.optionLabel
+                
+                if(answer.textResponse != null) answer.userAnswer = answer.textResponse
+
                 delete answer.question;
-
-                if(answer.checkboxResponses.length < 1) delete answer.checkboxResponses
-                else answer.checkboxResponses = answer.checkboxResponses.map((option) => {
-                    return option.option.optionLabel;
-                })
-
-                if(answer.multipleChoiceResponse == null) delete answer.multipleChoiceResponse
-                else answer.multipleChoiceResponse = answer.multipleChoiceResponse.optionLabel
-
-                if(answer.textResponse == null) delete answer.textResponse
+                delete answer.checkboxResponses
+                delete answer.multipleChoiceResponse
+                delete answer.textResponse
                 
                 return answer
             })
@@ -127,9 +140,9 @@ const fetchResponses = async (req, res) => {
         })
 
         res.status(200).json({
-            surveyInfo,
             statisticsData: statisticsData,
             responsesData: responsesData,
+            surveyInfo: surveyInfo,
             message: "Responses fetched!"
         })
 
