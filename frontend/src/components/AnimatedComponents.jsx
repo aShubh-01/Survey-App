@@ -7,6 +7,7 @@ import HourGlassLoadingAnimation from '../assets/animations/HourGlassLoading.jso
 import SubmitLoadingAnimation from '../assets/animations/SubmitLoading.json';
 import LineLoadingAnimation from '../assets/animations/LineLoading.json'
 import NewSurveyLoadingAnimation from '../assets/animations/NewSurveyLoading.json'
+import AnalyseSurveyLoadingAnimation from '../assets/animations/AnalyseSurveyLoading.json';
 
 const LoadAnimation = ({animationData}) => {
     const container = useRef(null);
@@ -51,4 +52,8 @@ export const LineLoading = () => {
 
 export const NewSurveyLoading = () => {
     return <LoadAnimation animationData={NewSurveyLoadingAnimation} />
+}
+
+export const AnalyseSurveyLoading = () => {
+    return <LoadAnimation animationData={AnalyseSurveyLoadingAnimation} />
 }
