@@ -51,7 +51,7 @@ const SurveyComponent = ({surveyId, title, description, analysisData}) => {
                 <span className='font-bold'>Submit Link </span> {' : '} 
                 <span className='md:mt-0 mt-1 flex justify-start'>
                     <span>
-                        <a className='md:text-[18px] p-[2px] px-2 rounded-l-lg text-[13px] border-[1px] border-black bg-slate-200 text-slate-800' 
+                        <a className='md:text-[18px] p-[2px] px-2 rounded-l-lg border-[1px] border-black bg-slate-200 text-slate-800' 
                         href={fillSurveyLink}>
                             {fillSurveyLink}
                         </a>
