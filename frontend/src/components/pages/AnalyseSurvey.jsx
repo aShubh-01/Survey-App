@@ -51,7 +51,7 @@ const SurveyComponent = ({surveyId, title, description, analysisData}) => {
                 <span className='font-bold'>Submit Link </span> {' : '} 
                 <span className='md:mt-0 mt-1 flex justify-start'>
                     <span>
-                        <a className='md:text-[18px] p-[2px] px-[10px] rounded-l-lg text-[15px] border-[1px] border-black bg-slate-200 text-slate-800' 
+                        <a className='md:text-[18px] p-[2px] px-2 rounded-l-lg text-[11px] border-[1px] border-black bg-slate-200 text-slate-800' 
                         href={fillSurveyLink}>
                             {fillSurveyLink}
                         </a>
@@ -59,7 +59,7 @@ const SurveyComponent = ({surveyId, title, description, analysisData}) => {
                     <span>
                         <button onClick={copyLink} 
                             className='bg-slate-200 rounded-r-lg border-[1px] border-black'>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="md:size-6 size-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="md:size-6 size-4">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" />
                             </svg>
                         </button>
@@ -199,7 +199,7 @@ const ResponsesComponent = ({responsesData, questionsData}) => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                 </svg>
             </button>
-            <div className='md:text-[20px] font-bold mt-[1px] text-[15px] font-mono'>
+            <div className='md:text-[20px] break-all text-center font-bold mt-[1px] text-[15px] font-mono'>
                 {userName}
             </div>
             <button onClick={() => {updateUserId('increement')}}>
