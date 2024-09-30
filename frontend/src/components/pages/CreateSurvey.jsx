@@ -4,8 +4,8 @@ import axios from 'axios';
 import { backendUrl } from '../../config';
 import { useMediaQuery } from 'react-responsive';
 import createSurveyBackgroundImage from '../../assets/images/createSurveyBackgroundImage.png';
-import { initiateSurvey, deleteQuestion, deleteSurvey, setQuestionFocusesState, setFocus, setQuesionLabel, 
-    setQuestionType, setOptionLabel, deleteOption, setDescription, setTitle, addOptionAsync,
+import { initiateSurvey, deleteQuestion, deleteSurvey, setQuestionFocusesState, setFocus, 
+    setQuesionLabel, setQuestionType, setOptionLabel, deleteOption, setDescription, setTitle, addOptionAsync,
     addQuestionAsync, toggleRequirementAsync} from '../../state/features/surveySlice';
 import { fetchAllSurveys } from '../../state/features/fetchSurveysSlice';
 import useDebouncedCallback from '../../state/customHooks/debounceCallback';
@@ -136,6 +136,7 @@ const TitleCardComponent = ({bgColour}) => {
 
 const QuestionsComponent = ({bgColour, bgColour2}) => {
     const dispatch = useDispatch();
+    let questionSrNo = 0;
     const questions = useSelector(state => {
         return state.survey.buildSurvey.questions;
     })
@@ -174,7 +175,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
             <div>
                 <div className={`flex justify-between gap-[6px] py-[4px] px-[5px] mb-2 rounded-md ${bgColour2}`}>
                     <span className=''>
-                        <input type='text' value={currentQuestionLabel}
+                        <input type='text' value={currentQuestionLabel} placeholder={'Question ' + questionSrNo}
                             className={`${question.isFocused ? 'w-[150px] md:w-[535px] border-b-[1px]' : 'w-[265px] md:w-[740px]'}
                                 md:pl-[3px] md:text-[20px] ${bgColour2} font-semibold
                                 pl-[1px] mt-[2px] text-[14px] focus:outline-none border-black`}
@@ -263,7 +264,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
         </div>
     }
 
-    const OptionComponent = ({questionId, option, icon, isFocused, bgColour}) => {
+    const OptionComponent = ({optionSrNo, questionId, option, icon, isFocused, bgColour}) => {
         const dispatch = useDispatch();
         const [currentOptionLabel, setCurrentOptionLabel] = useState(option.optionLabel);
 
@@ -300,7 +301,8 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
                 { icon }
             </div>
             <div className='flex justify-start'>
-                <input className={`md:w-[605px] ${bgColour}
+                <input placeholder={'Option ' + optionSrNo} 
+                    className={`md:w-[605px] ${bgColour}
                     focus:outline-none  focus:border-b-[1px] ${isFocused ? `hover:border-b-[1px]` : `border-[0px]`}
                     pl-1 w-[200px] border-black`}
                     type='text' value={currentOptionLabel} onChange={(e) => {
@@ -320,6 +322,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
     }
 
     const OptionsComponent = ({questionId, type, options, isFocused, bgColour}) => {
+        let optionSrNo = 1;
         const dispatch = useDispatch();
         const [showAnimation, setShowAnimation] = useState();
         const plusIcon = <svg className="size-4 md:size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
@@ -347,7 +350,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
                 {
                     options.map((option) => {
                         return <div key={option.id}>
-                            <OptionComponent questionId={questionId} option={option} icon={icon} isFocused={isFocused} bgColour={bgColour}/>
+                            <OptionComponent optionSrNo={optionSrNo++} questionId={questionId} option={option} icon={icon} isFocused={isFocused} bgColour={bgColour}/>
                         </div>
                     })
                 }
@@ -461,6 +464,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
     return <div className={`my-1 p-2 rounded-md ${bgColour}`}>
         <div>
             {questions.map((question) => {
+                questionSrNo++
                 return <QuestionComponent key={question.id} question={question} bgColour={bgColour2}/>
             })
         }
