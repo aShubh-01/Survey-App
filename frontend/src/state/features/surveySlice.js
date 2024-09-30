@@ -75,12 +75,12 @@ export const addQuestionAsync = createAsyncThunk('survey/addQuestionAsync', asyn
 
         return {
             id: questionId,
-            questionLabel: payload.questionLabel,
+            questionLabel: "",
             isRequired: false,
             isFocused: true,
             type: 'SINGLE_SELECT',
             options: [
-                {id: optionId, optionLabel: payload.optionLabel}
+                {id: optionId, optionLabel: ""}
             ]
         }
     } catch (err) {
@@ -107,7 +107,7 @@ export const addOptionAsync = createAsyncThunk('survey/addOptionAsync', async(pa
         return {
             questionId: payload.id,
             id: response.data.optionId,
-            optionLabel: payload.optionLabel
+            optionLabel: ''
         }
 
     } catch (err) {
@@ -123,20 +123,20 @@ export const createAndAddSurveyAsync = createAsyncThunk('survey/createAndAddSurv
 
     const newSurvey = {
         id: surveyId,
-        surveyTitle: payload.surveyTitle,
+        surveyTitle: '',
         description: '',
         isPublished: false,
         questions: [
             {
                 id: questionId,
-                questionLabel: payload.questionLabel,
+                questionLabel: '',
                 type: payload.type,
                 isFocused: true,
                 isRequired: false,
                 options: [
                     {
                         id: optionId,
-                        optionLabel: payload.optionLabel            
+                        optionLabel: ''            
                     }
                 ]
             }
