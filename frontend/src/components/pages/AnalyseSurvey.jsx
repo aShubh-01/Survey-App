@@ -51,7 +51,7 @@ const SurveyComponent = ({surveyId, title, description, analysisData}) => {
                 <span className='font-bold'>Submit Link </span> {' : '} 
                 <span className='md:mt-0 mt-1 flex justify-start'>
                     <span>
-                        <a className='md:text-[18px] p-[2px] px-2 rounded-l-lg border-[1px] border-black bg-slate-200 text-slate-800' 
+                        <a className='md:text-[18px] p-[2px] px-2 rounded-l-lg text-[11px] border-[1px] border-black bg-slate-200 text-slate-800' 
                         href={fillSurveyLink}>
                             {fillSurveyLink}
                         </a>
@@ -199,7 +199,7 @@ const ResponsesComponent = ({responsesData, questionsData}) => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                 </svg>
             </button>
-            <div className='md:text-[20px] font-bold mt-[1px] text-[15px] font-mono'>
+            <div className='md:text-[20px] break-all text-center font-bold mt-[1px] text-[15px] font-mono'>
                 {userName}
             </div>
             <button onClick={() => {updateUserId('increement')}}>
