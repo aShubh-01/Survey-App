@@ -136,7 +136,7 @@ const TitleCardComponent = ({bgColour}) => {
 
 const QuestionsComponent = ({bgColour, bgColour2}) => {
     const dispatch = useDispatch();
-    let questionSrNo = 0;
+    let questionSrNo = 1;
     const questions = useSelector(state => {
         return state.survey.buildSurvey.questions;
     })
@@ -147,7 +147,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
         {value: "TEXT", label: "Text Response"}
     ]
 
-    const QuestionComponent = ({question}) => {
+    const QuestionComponent = ({questionSrNo, question}) => {
         const dispatch = useDispatch();
         const [currentQuestionLabel, setCurrentQuestionLabel] = useState(question.questionLabel);
 
@@ -464,8 +464,7 @@ const QuestionsComponent = ({bgColour, bgColour2}) => {
     return <div className={`my-1 p-2 rounded-md ${bgColour}`}>
         <div>
             {questions.map((question) => {
-                questionSrNo++
-                return <QuestionComponent key={question.id} question={question} bgColour={bgColour2}/>
+                return <QuestionComponent key={question.id} questionSrNo={questionSrNo++} question={question} bgColour={bgColour2}/>
             })
         }
         </div>
