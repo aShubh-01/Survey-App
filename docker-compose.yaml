@@ -1,0 +1,32 @@
+version: '3.5'
+services: 
+  survey_app_frontend:
+    build: ./frontend
+    container_name: frontend_container
+    depends_on:
+      - survey_app_backend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_BACKEND_URL=http://localhost:3001
+
+    networks:
+      - survey_app_network
+  
+  survey_app_backend:
+    build: ./backend
+    container_name: backend_container
+    ports: 
+      - "3001:3001"
+    environment:
+      - UPTIME_URL=https://survey-app-s49s.onrender.com
+      - EMAIL_USER=querious100@gmail.com
+      - EMAIL_PASSWORD=sapf buyu uify mgwc
+      - JWT_SECRET_KEY=xyz123jwt
+      - DATABASE_URL=postgres://avnadmin:AVNS_gMXYfcz8t62fiELHQDW@pg-3242915e-mediumcloneapp.i.aivencloud.com:11717/defaultdb?sslmode=require
+    networks:
+      - survey_app_network
+
+networks:
+  survey_app_network:
+    name: survey_app_network
