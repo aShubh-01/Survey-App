@@ -47,7 +47,7 @@ Before you begin, ensure you have the following installed:
    There are two directories in the project viz :- frontend & backend, add a .env file in each one
    
    Environment variables in frontend dir:-
-     1. VITE_BACKEND_URL = http://localhost:3001
+     1. VITE_BACKEND_URL = http://localhost:3001 (If you want a differenet port, you can specify it in env var or in config.js in /backend directory)
    
    Environment variables in backend dir :-
      1. DATABASE_URL = "your_postgreSQL_datbase_url" (Get your own postgreSQL service on Aiven :- [Aiven](https://aiven.io/postgresql))
