@@ -7,7 +7,7 @@ import { setIsClosed } from '../../state/features/analyseSurvey';
 import { useSelector, useDispatch } from 'react-redux';
 import useGetAnalysisData from '../../state/customHooks/getAnalysisData';
 import useDebouncedCallback  from '../../state/customHooks/debounceCallback';
-import { AnalyseSurveyLoading } from '../AnimatedComponents';
+import { AnalyseSurveyLoading, TripleDotLoading } from '../AnimatedComponents';
 import { backendUrl } from '../../config';
 
 export default function AnalyseComponent() {
@@ -342,7 +342,7 @@ const SettingsComponent = ({surveyId}) => {
     const isClosed = useSelector(state => state.analyseSurvey.isClosed);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
+    const [deleteButtonContent, setDeleteButtonContent] = useState(<div>Delete</div>)
     const toggleAcceptResponses = useDebouncedCallback((isClosed) => {
         axios({
             url: `${backendUrl}/surveys/${surveyId}`,
@@ -366,7 +366,7 @@ const SettingsComponent = ({surveyId}) => {
                 'Content-Type': "application/json"
             }
         })
-        navigate('/dashboard')
+        navigate('/')
 
     }, 0)
 
@@ -393,11 +393,16 @@ const SettingsComponent = ({surveyId}) => {
         <div className='md:text-[20px] my-2 flex justify-between place-items-center'>
             <div>Delete Survey</div>
             <div>
-                <button onClick={() => {deleteSurvey(surveyId)}}
+                <button onClick={() => {
+                    setDeleteButtonContent(
+                        <div className='grid place-items-center max-h-[20px] size-14'><TripleDotLoading /></div>
+                    )
+                    deleteSurvey(surveyId)
+                }}
                     className='md:p-2 md:px-4 
                         text-white font-semibold bg-red-500 p-1 px-2 rounded-md'
                 >
-                    Delete
+                    {deleteButtonContent}
                 </button>
             </div>
         </div>

@@ -7,12 +7,15 @@ import dashboardLogo from '../../assets/images/dashboardLogo.png';
 import queriousBackground from '../../assets/images/queriousBackground.png';
 import { useMediaQuery } from 'react-responsive';
 import { LineLoading } from '../AnimatedComponents';
+import AuthComponent from './Auth';
 
 export default function DashboardComponent() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const isSmallScreen = useMediaQuery({ query: '(max-width:768px)' });
     const [isSurveysFetched, setIsSurveysFetched] = useState(false);
+
+    if(!localStorage.getItem('queriousToken')) return <AuthComponent navigateTo='/'/>
 
     const createSurvey = async () => {
         localStorage.removeItem('survey');

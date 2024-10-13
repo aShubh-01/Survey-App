@@ -481,7 +481,7 @@ const FooterComponent = ({bgColour}) => {
 
     function cleanUp() {
         localStorage.removeItem('survey');
-        navigate('/dashboard');
+        navigate('/');
         dispatch(deleteSurvey());
     }
 

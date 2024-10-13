@@ -1,0 +1,27 @@
+version: '3.5'
+services: 
+  survey_app_backend:
+    build: ./backend
+    container_name: backend_container
+    ports: 
+      - "3001:3001"
+    env_file:
+      - ./backend/.env
+    networks:
+      - survey_app_network
+
+  survey_app_frontend:
+    build: ./frontend
+    container_name: frontend_container
+    depends_on:
+      - survey_app_backend
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend/.env
+    networks:
+      - survey_app_network
+
+networks:
+  survey_app_network:
+    name: survey_app_network

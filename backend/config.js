@@ -3,7 +3,7 @@ const { withAccelerate } = require('@prisma/extension-accelerate');
 const { PrismaClient } = require('@prisma/client');
 const nodemailer = require('nodemailer');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 const jwtSecret = process.env.JWT_SECRET_KEY;
 
