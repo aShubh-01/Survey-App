@@ -56,7 +56,7 @@ Before you begin, ensure you have the following installed:
      4. EMAIL_PASSWORD = "your_google_app_password" Guide on how to get your app password :- [Google App Password](https://knowledge.workspace.google.com/kb/how-to-create-app-passwords-000009237)
 
 3. **Run the project**
-4. 
+
    To the run project, you can follow two approaches.
    
    1. Run locally by running some commands in each directory
