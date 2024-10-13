@@ -39,8 +39,8 @@ Before you begin, ensure you have the following installed:
 
    Open your terminal and run:
 
-   git clone https://github.com/ashubh-01/Survey-app.git
-   cd Survey-app
+   - git clone https://github.com/ashubh-01/Survey-app.git
+   - cd Survey-app
 
 2. **Specify the environment variables**
 
