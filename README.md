@@ -40,11 +40,11 @@ Before you begin, ensure you have the following installed:
    Open your terminal and run:
 
    - git clone https://github.com/ashubh-01/Survey-app.git
-   - cd Survey-app
+   - cd Survey-App
 
 2. **Specify the environment variables**
 
-   There are two directories in the project viz :- frontend & backend, add a .env file in each one
+   There are two directories in the project viz :- frontend & backend, add a .env file in each one, then add following variables in respective .env files
    
    Environment variables in frontend dir:-
      1. VITE_BACKEND_URL = http://localhost:3001 (If you want a differenet port, you can specify it in env var or in config.js in /backend directory)
