@@ -22,6 +22,6 @@ mainRouter.use('/questions', questionRouter);
 mainRouter.use('/options', optionRouter);
 mainRouter.use('/submissions', submissionRouter);
 
-mainRouter.listen(port, () => {
+mainRouter.listen(port, '0.0.0.0', () => {
     console.log("Backend running on " + port)
 })
