@@ -50,10 +50,10 @@ Before you begin, ensure you have the following installed:
      1. VITE_BACKEND_URL = http://localhost:3001
    
    Environment variables in backend dir :-
-     1. DATABASE_URL = "your_postgreSQL_datbase_url"
+     1. DATABASE_URL = "your_postgreSQL_datbase_url" (Get your own postgreSQL service on Aiven :- [Aiven](https://aiven.io/postgresql))
      2. JWT_SECRET_KEY = "your_secret_key"
      3. EMAIL_USER = "your_email_address_to_send_verification_codes_from"
-     4. EMAIL_PASSWORD = "your_google_app_password" Guide on how to get your app password :- [Google App Password](https://knowledge.workspace.google.com/kb/how-to-create-app-passwords-000009237)
+     4. EMAIL_PASSWORD = "your_google_app_password" (Guide on how to get your app password :- [Google App Password](https://knowledge.workspace.google.com/kb/how-to-create-app-passwords-000009237))
 
 3. **Run the project**
 
