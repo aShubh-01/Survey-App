@@ -58,13 +58,13 @@ Before you begin, ensure you have the following installed:
 3. **Run the project**
    To the run project, you can follow two approaches.
    1. Run locally by running some commands in each directory
-      a. frontend
+      1. frontend
          - npm install
          - npm run dev
-      b. backend
+      2. backend
          - npm install
          - npm run dev
-      c. backend/database
+      3. backend/database
          - npx prisma migrate --name "Bootstrap Schema" (Run this only once when you start your project for the very first time)
          - npx prisma generate
      
