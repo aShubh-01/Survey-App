@@ -47,13 +47,13 @@ Before you begin, ensure you have the following installed:
    There are two directories in the project viz :- frontend & backend, each one should have a .env file
    
    Environment variables in frontend dir:-
-     a. VITE_BACKEND_URL = http://localhost:3001
+     1. VITE_BACKEND_URL = http://localhost:3001
    
    Environment variables in backend dir :-
-     a. DATABASE_URL = "your_postgreSQL_datbase_url"
-     b. JWT_SECRET_KEY = "your_secret_key"
-     c. EMAIL_USER = "your_email_address_to_send_verification_codes_from"
-     d. EMAIL_PASSWORD = "your_google_app_password" Guide on how to get your app password :- [Google App Password](https://knowledge.workspace.google.com/kb/how-to-create-app-passwords-000009237)
+     1. DATABASE_URL = "your_postgreSQL_datbase_url"
+     2. JWT_SECRET_KEY = "your_secret_key"
+     3. EMAIL_USER = "your_email_address_to_send_verification_codes_from"
+     4. EMAIL_PASSWORD = "your_google_app_password" Guide on how to get your app password :- [Google App Password](https://knowledge.workspace.google.com/kb/how-to-create-app-passwords-000009237)
 
 3. **Run the project**
    To the run project, you can follow two approaches.
