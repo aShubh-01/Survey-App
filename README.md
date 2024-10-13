@@ -71,7 +71,7 @@ Before you begin, ensure you have the following installed:
          - npx prisma generate
      
    2. Run in an containerised environment
-      - docker-compose up --build
+      - run 'docker-compose up --build' in root directory of your project/where docker-compose.yaml is located
       
       
       
