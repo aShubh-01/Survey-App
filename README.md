@@ -60,20 +60,21 @@ Before you begin, ensure you have the following installed:
    To the run project, you can follow two approaches.
    
    1. Run locally by running some commands in each directory
-      1. frontend
+      1. /frontend
          - npm install
          - npm run dev
-      2. backend
+      2. /backend
          - npm install
          - npm run dev
-      3. backend/database
+      3. /backend/database
          - npx prisma migrate --name "Bootstrap Schema" (Run this only once when you start your project for the very first time)
          - npx prisma generate
      
    2. Run in an containerised environment
       - docker-compose up --build
       - docker exec -it backend_container /bin/sh (This will open bash inside the backend_container as '# app' , then run the following commands)
-        - cd database && npx prisma migrate dev --name "Bootstrap Schema"
+        - cd database
+        - npx prisma migrate dev --name "Bootstrap Schema"
         - enter 'yes' if prompt ask for it.
       
       
